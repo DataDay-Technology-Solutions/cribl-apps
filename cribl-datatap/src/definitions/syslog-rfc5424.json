@@ -1,0 +1,31 @@
+{
+  "sourcetype":"syslog","vendor":"Generic","product":"Syslog","format":"syslog_rfc5424",
+  "description":"RFC 5424 syslog messages",
+  "fields":[
+    {"name":"fac","type":"enum","config":{"values":[0,1,3,4,9,10,16],"names":["kern","user","daemon","auth","cron","authpriv","local0"],"weights":[0.08,0.14,0.16,0.2,0.12,0.12,0.18]}},
+    {"name":"sev","type":"enum","config":{"values":[0,1,2,3,4,5,6,7],"names":["emerg","alert","crit","err","warning","notice","info","debug"],"weights":[0.01,0.02,0.03,0.08,0.12,0.2,0.4,0.14]}},
+    {"name":"ts","type":"timestamp","config":{"format":"iso","jitterMs":5000}},
+    {"name":"host","type":"hostname","config":{"pool":["web-prod-01","app-prod-01","db-prod-01","lb-prod-01","mail-prod-01","monitor-01","jump-01"]}},
+    {"name":"app","type":"enum","config":{"values":["sshd","sudo","CRON","systemd","kernel","nginx","postfix","dockerd","auditd","fail2ban"],"weights":[0.14,0.09,0.11,0.12,0.1,0.12,0.06,0.08,0.1,0.08]}},
+    {"name":"pid","type":"int","config":{"min":100,"max":65535}},
+    {"name":"sd","type":"string","config":{"pool":["-","[timeQuality tzKnown=\"1\" isSynced=\"1\"]"]}},
+    {"name":"sip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.6}],"external":[{"cidr":"0.0.0.0/0","weight":0.4}]}},
+    {"name":"spt","type":"port","config":{"type":"ephemeral"}},
+    {"name":"usr","type":"username","config":{"pool":["root","admin","deploy","www-data","ubuntu"],"pattern":"{first}.{last}"}}
+  ],
+  "variants":{
+    "sshd_ok":{"weight":0.10,"fields":{"am":{"type":"enum","config":{"values":["publickey","password"],"weights":[0.7,0.3]}}},"template":"<{{pri}}>1 {{ts}} {{host}} sshd {{pid}} - {{sd}} Accepted {{am}} for {{usr}} from {{sip}} port {{spt}} ssh2"},
+    "sshd_fail":{"weight":0.06,"fields":{},"template":"<{{pri}}>1 {{ts}} {{host}} sshd {{pid}} - {{sd}} Failed password for {{usr}} from {{sip}} port {{spt}} ssh2"},
+    "sshd_inv":{"weight":0.04,"fields":{},"template":"<{{pri}}>1 {{ts}} {{host}} sshd {{pid}} - {{sd}} Invalid user {{usr}} from {{sip}} port {{spt}}"},
+    "sudo":{"weight":0.08,"fields":{"cmd":{"type":"string","config":{"pool":["/usr/bin/systemctl restart nginx","/usr/bin/yum update -y","/usr/bin/docker ps","/usr/sbin/iptables -L"]}}},"template":"<{{pri}}>1 {{ts}} {{host}} sudo {{pid}} - {{sd}} {{usr}} : TTY=pts/0 ; PWD=/home/{{usr}} ; USER=root ; COMMAND={{cmd}}"},
+    "cron":{"weight":0.10,"fields":{"cj":{"type":"string","config":{"pool":["/usr/lib/sa/sa1 1 1","/usr/sbin/logrotate /etc/logrotate.conf","/opt/scripts/backup.sh"]}}},"template":"<{{pri}}>1 {{ts}} {{host}} CRON {{pid}} - {{sd}} ({{usr}}) CMD ({{cj}})"},
+    "systemd":{"weight":0.12,"fields":{"svc":{"type":"string","config":{"pool":["nginx.service","docker.service","sshd.service","crond.service"]}},"act":{"type":"enum","config":{"values":["Started","Stopped","Starting","Stopping"],"weights":[0.4,0.25,0.2,0.15]}}},"template":"<{{pri}}>1 {{ts}} {{host}} systemd {{pid}} - {{sd}} {{act}} {{svc}}."},
+    "kernel":{"weight":0.08,"fields":{"km":{"type":"string","config":{"pool":["[UFW BLOCK] IN=eth0 SRC={{sip}} PROTO=TCP SPT={{spt}} DPT=22","EXT4-fs (sda1): mounted filesystem","nf_conntrack: table full, dropping packet"]}}},"template":"<{{pri}}>1 {{ts}} {{host}} kernel - - {{sd}} {{km}}"},
+    "nginx":{"weight":0.10,"fields":{"m":{"type":"enum","config":{"values":["GET","POST","PUT","DELETE"],"weights":[0.65,0.2,0.08,0.07]}},"p":{"type":"string","config":{"pool":["/","/api/v1/users","/api/v1/health","/login","/favicon.ico","/metrics"]}},"sc":{"type":"enum","config":{"values":["200","301","304","400","404","500","503"],"weights":[0.55,0.06,0.1,0.06,0.1,0.08,0.05]}},"rb":{"type":"int","config":{"min":0,"max":524288}}},"template":"<{{pri}}>1 {{ts}} {{host}} nginx {{pid}} - {{sd}} {{sip}} - - \"{{m}} {{p}} HTTP/1.1\" {{sc}} {{rb}}"},
+    "postfix":{"weight":0.05,"fields":{"qid":{"type":"string","config":{"pattern":"{random_hex:10}"}},"ms":{"type":"enum","config":{"values":["sent","deferred","bounced"],"weights":[0.7,0.2,0.1]}},"to":{"type":"email","config":{"domain":"example.com"}}},"template":"<{{pri}}>1 {{ts}} {{host}} postfix/smtp {{pid}} - {{sd}} {{qid}}: to=<{{to}}>, status={{ms}}"},
+    "generic":{"weight":0.27,"fields":{},"template":"<{{pri}}>1 {{ts}} {{host}} {{app}} {{pid}} - {{sd}} process started successfully"}
+  },
+  "template":"<{{pri}}>1 {{ts}} {{host}} {{app}} {{pid}} - {{sd}} {{msg}}",
+  "priorityCalc":"fac * 8 + sev",
+  "correlationHints":{"actor_ip":"sip","actor_user":"usr","target_host":"host"}
+}

