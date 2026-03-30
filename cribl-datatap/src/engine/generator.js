@@ -250,6 +250,19 @@ class DataTapGenerator {
       case 'useragent':
         return randomizers.randomUserAgent(seed);
 
+      // Algorithmic types — infinite uniqueness, zero pool bloat
+      case 'serial':
+        return randomizers.proceduralSerial(config.prefix, config.digits, seed);
+
+      case 'counter':
+        return (config.prefix || '') + String(config.base ? config.base + this._eventCounter : this._eventCounter);
+
+      case 'procedural_hostname':
+        return randomizers.proceduralHostname(seed);
+
+      case 'procedural_name':
+        return randomizers.proceduralName(seed);
+
       default:
         // Unknown type: return empty string or pool pick if available
         if (config.pool && config.pool.length > 0) {
