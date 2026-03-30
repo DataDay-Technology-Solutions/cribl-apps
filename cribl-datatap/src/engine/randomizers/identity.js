@@ -315,12 +315,88 @@ function randomUserAgent(seed) {
   return `Mozilla/5.0 (${os}) ${tmpl.engine} (KHTML, like Gecko) Chrome/${majorVersion}.0.${sv}.${patch} ${suffix}`;
 }
 
+// ---------------------------------------------------------------------------
+// Procedural generators — infinite uniqueness from tiny seed data
+// ---------------------------------------------------------------------------
+
+// Syllable combinator: 18 prefixes × 20 suffixes = 360 base names per gender
+// Combined with pool names: 240 + 360 = 600 first names, zero extra bloat
+const NAME_PREFIXES = ['Al', 'Br', 'Ca', 'Da', 'El', 'Fa', 'Ga', 'Ha', 'Ja', 'Ka', 'La', 'Ma', 'Na', 'Ra', 'Sa', 'Ta', 'Va', 'Za'];
+const NAME_SUFFIXES = ['an', 'en', 'in', 'on', 'ar', 'er', 'ir', 'or', 'ay', 'ey', 'ia', 'ea', 'is', 'us', 'el', 'al', 'yn', 'lyn', 'ston', 'den'];
+
+function proceduralName(seed) {
+  const p = pickRandom(NAME_PREFIXES, seed);
+  const s = pickRandom(NAME_SUFFIXES, seed !== undefined ? seed + 7 : undefined);
+  return p + s;
+}
+
+// Procedural hostname: 27 roles × 35 locations × 9999 numbers = 9.4M unique hostnames
+// Plus optional department and rack suffixes for even more variety
+function proceduralHostname(seed) {
+  const role = pickRandom(ROLES, seed);
+  const loc = pickRandom(LOCATIONS, seed !== undefined ? seed + 1 : undefined);
+  const num = randomIntInRange(1, 9999, seed !== undefined ? seed + 2 : undefined);
+  const rack = randomIntInRange(1, 12, seed !== undefined ? seed + 3 : undefined);
+  // 50% chance to include rack designator
+  if (num % 2 === 0) {
+    return `${role}-${loc}-R${rack}-${String(num).padStart(4, '0')}`;
+  }
+  return `${role}-${loc}-${String(num).padStart(4, '0')}`;
+}
+
+// Procedural serial number: prefix + random digits = millions of unique serials
+function proceduralSerial(prefix, digitCount, seed) {
+  prefix = prefix || '00725100';
+  digitCount = digitCount || 7;
+  const max = Math.pow(10, digitCount) - 1;
+  const num = randomIntInRange(0, max, seed);
+  return prefix + String(num).padStart(digitCount, '0');
+}
+
+// Procedural domain: 94 words × 26 TLDs × optional 2-word combos = 57k+ domains
+function proceduralDomainCombo(seed) {
+  const w1 = pickRandom(DOMAIN_WORDS, seed);
+  const w2 = pickRandom(DOMAIN_WORDS, seed !== undefined ? seed + 3 : undefined);
+  const tld = pickRandom(TLDS, seed !== undefined ? seed + 5 : undefined);
+  // 40% chance of compound domain
+  if ((seed !== undefined ? seed : crypto.randomInt(10)) % 10 < 4) {
+    return `${w1}${w2}.${tld}`;
+  }
+  return `${w1}.${tld}`;
+}
+
+// Enhanced username: mixes pool names + procedural names for max diversity
+function randomUsernameEnhanced(pattern, seed) {
+  // 30% chance to use procedural name instead of pool
+  const useProcedural = crypto.randomInt(10) < 3;
+  const first = useProcedural ? proceduralName(seed) : pickRandom(FIRST_NAMES, seed);
+  const last = pickRandom(LAST_NAMES, seed !== undefined ? seed + 1 : undefined);
+
+  switch (pattern) {
+    case 'firstinitial.last':
+      return `${first[0].toLowerCase()}.${last.toLowerCase()}`;
+    case 'adjective-noun-number': {
+      const adj = pickRandom(ADJECTIVES, seed);
+      const noun = pickRandom(NOUNS, seed !== undefined ? seed + 1 : undefined);
+      const num = randomIntInRange(1, 9999, seed !== undefined ? seed + 2 : undefined);
+      return `${adj}-${noun}-${num}`;
+    }
+    case 'first.last':
+    default:
+      return `${first.toLowerCase()}.${last.toLowerCase()}`;
+  }
+}
+
 module.exports = {
-  randomUsername,
+  randomUsername: randomUsernameEnhanced,
   randomHostname,
   randomEmail,
   randomDomain,
   randomUserAgent,
+  proceduralName,
+  proceduralHostname,
+  proceduralSerial,
+  proceduralDomainCombo,
   FIRST_NAMES,
   LAST_NAMES,
   ADJECTIVES,

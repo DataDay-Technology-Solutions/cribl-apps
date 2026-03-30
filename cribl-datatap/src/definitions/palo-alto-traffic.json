@@ -3,7 +3,7 @@
   "description":"PAN-OS firewall traffic log",
   "fields":[
     {"name":"recv","type":"timestamp","config":{"format":"YYYY/MM/DD HH:mm:ss","jitterMs":2000}},
-    {"name":"serial","type":"string","config":{"pool":["007251000043210","007251000078654","007251000012345","007251000098765","007251000055512","007251000067834","007251000023456","007251000089012","007251000034567","007251000045678","007251000056789","007251000011223","007251000033445","007251000077889","007251000099001","007251000022110","007251000044332","007251000066554","007251000088776","007251000010293"]}},
+    {"name":"serial","type":"serial","config":{"prefix":"00725100","digits":7}},
     {"name":"type","type":"enum","config":{"values":["TRAFFIC"],"weights":[1]}},
     {"name":"subtype","type":"enum","config":{"values":["end","start","drop","deny"],"weights":[0.65,0.2,0.1,0.05]}},
     {"name":"gen","type":"timestamp","config":{"format":"YYYY/MM/DD HH:mm:ss","jitterMs":1000}},
