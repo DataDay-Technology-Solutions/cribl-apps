@@ -247,6 +247,9 @@ class DataTapGenerator {
       case 'path':
         return this._generatePath(config, seed);
 
+      case 'useragent':
+        return randomizers.randomUserAgent(seed);
+
       default:
         // Unknown type: return empty string or pool pick if available
         if (config.pool && config.pool.length > 0) {
@@ -411,7 +414,7 @@ class DataTapGenerator {
   _generateURL(config, seed) {
     const protocol = config.protocol || 'https';
     const domain = config.domain || randomizers.randomDomain(seed);
-    const paths = config.paths || ['/api/v1/data', '/login', '/dashboard', '/health', '/users'];
+    const paths = config.paths || ['/api/v1/data', '/login', '/dashboard', '/health', '/users', '/api/v1/auth/token', '/api/v1/events', '/api/v2/search', '/api/v1/config', '/api/v1/alerts', '/api/v1/users/me', '/api/v1/webhooks', '/api/v1/ingest', '/metrics', '/status', '/favicon.ico', '/robots.txt', '/graphql', '/api/v1/reports', '/api/v1/integrations', '/api/v2/query', '/logout', '/oauth/token', '/api/v1/audit', '/api/v1/settings', '/api/v1/notifications', '/.well-known/openid-configuration', '/api/v1/assets', '/api/v1/groups', '/api/v1/roles'];
     const urlPath = randomizers.pickRandom(paths, seed !== undefined ? seed + 5 : undefined);
     return `${protocol}://${domain}${urlPath}`;
   }
@@ -424,9 +427,49 @@ class DataTapGenerator {
     const basePaths = [
       'C:\\Windows\\System32\\cmd.exe',
       'C:\\Windows\\System32\\powershell.exe',
+      'C:\\Windows\\System32\\svchost.exe',
+      'C:\\Windows\\System32\\lsass.exe',
+      'C:\\Windows\\System32\\csrss.exe',
+      'C:\\Windows\\System32\\conhost.exe',
+      'C:\\Windows\\System32\\rundll32.exe',
+      'C:\\Windows\\System32\\regsvr32.exe',
+      'C:\\Windows\\System32\\msiexec.exe',
+      'C:\\Windows\\System32\\certutil.exe',
+      'C:\\Windows\\System32\\wscript.exe',
+      'C:\\Windows\\System32\\cscript.exe',
+      'C:\\Windows\\System32\\net.exe',
+      'C:\\Windows\\System32\\reg.exe',
+      'C:\\Windows\\System32\\mshta.exe',
+      'C:\\Windows\\System32\\bitsadmin.exe',
+      'C:\\Windows\\explorer.exe',
+      'C:\\Windows\\System32\\wbem\\wmiprvse.exe',
+      'C:\\Windows\\System32\\dllhost.exe',
+      'C:\\Windows\\System32\\mmc.exe',
+      'C:\\Program Files\\Windows Defender\\MsMpEng.exe',
+      'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       '/usr/bin/bash',
+      '/usr/bin/sh',
+      '/usr/bin/python3',
       '/usr/local/bin/node',
+      '/usr/bin/perl',
+      '/usr/bin/ruby',
+      '/usr/sbin/sshd',
+      '/usr/sbin/nginx',
+      '/usr/sbin/apache2',
+      '/usr/bin/curl',
+      '/usr/bin/wget',
+      '/usr/bin/git',
+      '/usr/bin/docker',
+      '/usr/bin/kubectl',
+      '/usr/local/bin/terraform',
+      '/usr/bin/find',
+      '/usr/bin/grep',
+      '/usr/bin/awk',
       '/var/log/syslog',
+      '/var/log/auth.log',
+      '/etc/passwd',
+      '/opt/app/bin/service',
     ];
     return randomizers.pickRandom(basePaths, seed);
   }

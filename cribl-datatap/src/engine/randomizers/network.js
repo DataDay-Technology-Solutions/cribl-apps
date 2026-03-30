@@ -135,9 +135,16 @@ function randomPrivateIP(seed) {
 
 const RESERVED_FIRST_OCTETS = new Set([0, 10, 100, 127, 169, 172, 192, 198, 203, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]);
 
+// Pre-computed safe first octets for guaranteed O(1) public IP generation
+const SAFE_FIRST_OCTETS = [];
+for (let i = 1; i <= 223; i++) {
+  if (!RESERVED_FIRST_OCTETS.has(i)) SAFE_FIRST_OCTETS.push(i);
+}
+
 function randomPublicIP(seed) {
+  // Try the random approach first for good distribution
   let attempts = 0;
-  while (attempts < 100) {
+  while (attempts < 20) {
     const a = randomIntInRange(1, 223, seed !== undefined ? seed + attempts : undefined);
     if (!RESERVED_FIRST_OCTETS.has(a)) {
       const b = randomIntInRange(0, 255, seed !== undefined ? seed + attempts + 1 : undefined);
@@ -147,8 +154,64 @@ function randomPublicIP(seed) {
     }
     attempts++;
   }
-  return '8.8.8.8';
+  // Fallback: pick from pre-computed safe octets instead of returning a static IP
+  const a = pickRandom(SAFE_FIRST_OCTETS, seed !== undefined ? seed + 100 : undefined);
+  const b = randomIntInRange(0, 255, seed !== undefined ? seed + 101 : undefined);
+  const c = randomIntInRange(0, 255, seed !== undefined ? seed + 102 : undefined);
+  const d = randomIntInRange(1, 254, seed !== undefined ? seed + 103 : undefined);
+  return `${a}.${b}.${c}.${d}`;
 }
+
+const COMMON_PORTS = [
+  { port: 20, service: 'ftp-data' },
+  { port: 21, service: 'ftp' },
+  { port: 22, service: 'ssh' },
+  { port: 23, service: 'telnet' },
+  { port: 25, service: 'smtp' },
+  { port: 53, service: 'dns' },
+  { port: 67, service: 'dhcp' },
+  { port: 68, service: 'dhcp' },
+  { port: 69, service: 'tftp' },
+  { port: 80, service: 'http' },
+  { port: 110, service: 'pop3' },
+  { port: 111, service: 'rpc' },
+  { port: 119, service: 'nntp' },
+  { port: 123, service: 'ntp' },
+  { port: 135, service: 'msrpc' },
+  { port: 137, service: 'netbios-ns' },
+  { port: 139, service: 'netbios-ssn' },
+  { port: 143, service: 'imap' },
+  { port: 161, service: 'snmp' },
+  { port: 162, service: 'snmptrap' },
+  { port: 389, service: 'ldap' },
+  { port: 443, service: 'https' },
+  { port: 445, service: 'microsoft-ds' },
+  { port: 465, service: 'smtps' },
+  { port: 514, service: 'syslog' },
+  { port: 587, service: 'submission' },
+  { port: 636, service: 'ldaps' },
+  { port: 993, service: 'imaps' },
+  { port: 995, service: 'pop3s' },
+  { port: 1433, service: 'mssql' },
+  { port: 1434, service: 'mssql-monitor' },
+  { port: 1521, service: 'oracle' },
+  { port: 2049, service: 'nfs' },
+  { port: 3306, service: 'mysql' },
+  { port: 3389, service: 'rdp' },
+  { port: 5432, service: 'postgresql' },
+  { port: 5900, service: 'vnc' },
+  { port: 5985, service: 'winrm-http' },
+  { port: 5986, service: 'winrm-https' },
+  { port: 6379, service: 'redis' },
+  { port: 8080, service: 'http-proxy' },
+  { port: 8443, service: 'https-alt' },
+  { port: 8888, service: 'http-alt' },
+  { port: 9090, service: 'prometheus' },
+  { port: 9200, service: 'elasticsearch' },
+  { port: 9300, service: 'elasticsearch-transport' },
+  { port: 11211, service: 'memcached' },
+  { port: 27017, service: 'mongodb' },
+];
 
 module.exports = {
   randomIPv4,
@@ -162,4 +225,5 @@ module.exports = {
   ipToInt,
   weightedChoice,
   pickRandom,
+  COMMON_PORTS,
 };
