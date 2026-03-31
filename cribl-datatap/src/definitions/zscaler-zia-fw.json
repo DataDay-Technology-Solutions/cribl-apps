@@ -1,0 +1,27 @@
+{
+  "sourcetype":"zscalernss-fw","vendor":"Zscaler","product":"ZIA Firewall","format":"json",
+  "description":"Zscaler Internet Access firewall logs",
+  "fields":[
+    {"name":"datetime","type":"timestamp","config":{"format":"ddd MMM DD HH:mm:ss YYYY","jitterMs":3000}},
+    {"name":"user","type":"username","config":{"pattern":"{first}.{last}@company.com"}},
+    {"name":"department","type":"enum","config":{"values":["Engineering","Finance","Human Resources","Marketing","Sales","IT","Legal","Operations","Executive","Support","Research","Product"],"weights":[0.15,0.1,0.08,0.1,0.12,0.12,0.05,0.08,0.04,0.06,0.05,0.05]}},
+    {"name":"srcip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.5},{"cidr":"192.168.0.0/16","weight":0.3}],"external":[{"cidr":"0.0.0.0/0","weight":0.2}]}},
+    {"name":"destip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.15}],"external":[{"cidr":"0.0.0.0/0","weight":0.85}]}},
+    {"name":"srcport","type":"port","config":{"type":"ephemeral"}},
+    {"name":"destport","type":"port","config":{"common":[443,80,53,22,25,8080,3389,993,587,445,8443,5060],"weights":[0.22,0.14,0.1,0.07,0.06,0.07,0.06,0.05,0.05,0.05,0.07,0.06]}},
+    {"name":"action","type":"enum","config":{"values":["Allow","Drop","Reset","Block ICMP","Block UDP"],"weights":[0.72,0.14,0.06,0.04,0.04]}},
+    {"name":"proto","type":"enum","config":{"values":["TCP","UDP","ICMP","GRE","ESP"],"weights":[0.6,0.25,0.07,0.04,0.04]}},
+    {"name":"nwsvc","type":"enum","config":{"values":["HTTPS","HTTP","DNS","SSH","SMTP","RDP","FTP","NTP","SNMP","SIP","IMAP","POP3","SMB","LDAP","Other"],"weights":[0.22,0.13,0.1,0.06,0.05,0.06,0.03,0.04,0.03,0.04,0.04,0.03,0.04,0.04,0.09]}},
+    {"name":"rule","type":"string","config":{"pool":["Default Firewall Rule","Block High Risk Ports","Allow DNS","Allow HTTPS Outbound","Block P2P","Allow SMTP Relay","Block Tor","Allow VPN","Block Crypto Mining","Allow Corporate Apps","Block Telnet","Allow NTP","Block IRC","Rate Limit Rule","GeoIP Block Rule","Allow SIP"]}},
+    {"name":"location","type":"enum","config":{"values":["HQ-Office","NYC-Office","SF-Office","Chicago-Office","London-Office","Remote-US","Remote-EU","Austin-Office","Seattle-Office","Denver-Office"],"weights":[0.15,0.12,0.12,0.1,0.08,0.14,0.09,0.07,0.07,0.06]}},
+    {"name":"duration","type":"int","config":{"min":0,"max":7200}},
+    {"name":"numsessions","type":"int","config":{"min":1,"max":50}},
+    {"name":"txbytes","type":"int","config":{"min":40,"max":1048576}},
+    {"name":"rxbytes","type":"int","config":{"min":40,"max":1048576}},
+    {"name":"deviceowner","type":"username","config":{"pattern":"{first}.{last}"}},
+    {"name":"devicehostname","type":"hostname","config":{"pool":["WKS-FIN-PC07","WKS-IT-PC01","WKS-HR-PC03","LAPTOP-A3B7C9D","LAPTOP-K8M2P4Q","WKS-MKT-PC03","WKS-ENG-PC08","LAPTOP-R7N3W2X","WKS-EXEC-PC01","WKS-SALES-PC04","WKS-OPS-PC02","LAPTOP-F4G6H8J"]}},
+    {"name":"avgduration","type":"int","config":{"min":0,"max":3600}}
+  ],
+  "template":"{\"datetime\":\"{{datetime}}\",\"user\":\"{{user}}\",\"department\":\"{{department}}\",\"srcip\":\"{{srcip}}\",\"destip\":\"{{destip}}\",\"srcport\":{{srcport}},\"destport\":{{destport}},\"action\":\"{{action}}\",\"proto\":\"{{proto}}\",\"nwsvc\":\"{{nwsvc}}\",\"rule\":\"{{rule}}\",\"location\":\"{{location}}\",\"duration\":{{duration}},\"numsessions\":{{numsessions}},\"txbytes\":{{txbytes}},\"rxbytes\":{{rxbytes}},\"deviceowner\":\"{{deviceowner}}\",\"devicehostname\":\"{{devicehostname}}\",\"avgduration\":{{avgduration}}}",
+  "correlationHints":{"actor_ip":"srcip","actor_user":"user","target_ip":"destip","target_port":"destport"}
+}

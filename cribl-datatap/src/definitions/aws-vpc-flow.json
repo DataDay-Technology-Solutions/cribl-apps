@@ -1,0 +1,22 @@
+{
+  "sourcetype":"aws:cloudwatchlogs:vpcflow","vendor":"AWS","product":"VPC Flow Logs","format":"space_delimited",
+  "description":"AWS VPC Flow Logs (Version 2)",
+  "fields":[
+    {"name":"version","type":"enum","config":{"values":["2"],"weights":[1]}},
+    {"name":"account_id","type":"string","config":{"pool":["123456789012","234567890123","345678901234","456789012345","567890123456","678901234567","789012345678","890123456789","901234567890","112233445566","998877665544","443322110099","554433221100","665544332211","776655443322"]}},
+    {"name":"interface_id","type":"string","config":{"pool":["eni-0a1b2c3d4e5f6a7b8","eni-1b2c3d4e5f6a7b8c9","eni-2c3d4e5f6a7b8c9d0","eni-3d4e5f6a7b8c9d0e1","eni-4e5f6a7b8c9d0e1f2","eni-5f6a7b8c9d0e1f2a3","eni-6a7b8c9d0e1f2a3b4","eni-7b8c9d0e1f2a3b4c5","eni-8c9d0e1f2a3b4c5d6","eni-9d0e1f2a3b4c5d6e7","eni-0e1f2a3b4c5d6e7f8","eni-1f2a3b4c5d6e7f8a9","eni-abcdef0123456789a","eni-bcdef0123456789ab","eni-cdef0123456789abc"]}},
+    {"name":"srcaddr","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.35},{"cidr":"172.16.0.0/12","weight":0.15}],"external":[{"cidr":"0.0.0.0/0","weight":0.5}]}},
+    {"name":"dstaddr","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.4},{"cidr":"172.16.0.0/12","weight":0.15}],"external":[{"cidr":"0.0.0.0/0","weight":0.45}]}},
+    {"name":"srcport","type":"port","config":{"type":"ephemeral"}},
+    {"name":"dstport","type":"port","config":{"common":[443,80,53,22,3306,5432,6379,8080,8443,27017,25,3389],"weights":[0.22,0.14,0.1,0.08,0.07,0.06,0.05,0.06,0.05,0.04,0.06,0.07]}},
+    {"name":"protocol","type":"enum","config":{"values":["6","17","1"],"weights":[0.7,0.25,0.05]}},
+    {"name":"packets","type":"int","config":{"min":1,"max":50000}},
+    {"name":"bytes","type":"int","config":{"min":40,"max":5242880}},
+    {"name":"start","type":"timestamp","config":{"format":"epoch","jitterMs":60000}},
+    {"name":"end","type":"timestamp","config":{"format":"epoch","jitterMs":60000}},
+    {"name":"action","type":"enum","config":{"values":["ACCEPT","REJECT"],"weights":[0.82,0.18]}},
+    {"name":"log_status","type":"enum","config":{"values":["OK","NODATA","SKIPDATA"],"weights":[0.92,0.05,0.03]}}
+  ],
+  "template":"{{version}} {{account_id}} {{interface_id}} {{srcaddr}} {{dstaddr}} {{srcport}} {{dstport}} {{protocol}} {{packets}} {{bytes}} {{start}} {{end}} {{action}} {{log_status}}",
+  "correlationHints":{"actor_ip":"srcaddr","target_ip":"dstaddr","target_port":"dstport"}
+}

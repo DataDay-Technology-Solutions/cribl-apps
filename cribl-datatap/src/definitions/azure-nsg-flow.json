@@ -1,0 +1,43 @@
+{
+  "sourcetype":"azure:nsg:flow","vendor":"Microsoft","product":"Azure NSG Flow Logs","format":"json",
+  "description":"Azure Network Security Group flow log events",
+  "fields":[
+    {"name":"ts","type":"timestamp","config":{"format":"epoch","jitterMs":5000}},
+    {"name":"sysid","type":"uuid","config":{}},
+    {"name":"mac","type":"string","config":{"pool":["00155D6A0B02","00155D6A0B03","00155D6A0B04","00155D6A0B05","00155D6A0B06","00155D7A1C01","00155D7A1C02","00155D7A1C03","00155D8B2D01","00155D8B2D02"]}},
+    {"name":"rid","type":"string","config":{"pool":["/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/prod-networking/providers/Microsoft.Network/networkSecurityGroups/prod-nsg","/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/prod-networking/providers/Microsoft.Network/networkSecurityGroups/web-tier-nsg","/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/prod-networking/providers/Microsoft.Network/networkSecurityGroups/app-tier-nsg","/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/prod-networking/providers/Microsoft.Network/networkSecurityGroups/db-tier-nsg","/subscriptions/b2c3d4e5-f6a7-8901-bcde-f12345678901/resourceGroups/dev-networking/providers/Microsoft.Network/networkSecurityGroups/dev-nsg"]}},
+    {"name":"sip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.4},{"cidr":"172.16.0.0/12","weight":0.15}],"external":[{"cidr":"0.0.0.0/0","weight":0.45}]}},
+    {"name":"dip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.5},{"cidr":"172.16.0.0/12","weight":0.15}],"external":[{"cidr":"0.0.0.0/0","weight":0.35}]}},
+    {"name":"spt","type":"port","config":{"type":"ephemeral"}},
+    {"name":"dpt","type":"port","config":{"common":[443,80,22,3389,1433,3306,5432,8443,8080,53],"weights":[0.25,0.15,0.1,0.08,0.08,0.07,0.07,0.07,0.07,0.06]}},
+    {"name":"proto","type":"enum","config":{"values":["T","U"],"weights":[0.8,0.2]}},
+    {"name":"tflow","type":"enum","config":{"values":["I","O"],"weights":[0.55,0.45]}},
+    {"name":"tdec","type":"enum","config":{"values":["A","D"],"weights":[0.82,0.18]}},
+    {"name":"fstate","type":"enum","config":{"values":["B","C","E"],"weights":[0.35,0.35,0.3]}},
+    {"name":"ps2d","type":"int","config":{"min":1,"max":50000}},
+    {"name":"bs2d","type":"int","config":{"min":40,"max":5242880}},
+    {"name":"pd2s","type":"int","config":{"min":1,"max":50000}},
+    {"name":"bd2s","type":"int","config":{"min":40,"max":5242880}},
+    {"name":"rule","type":"string","config":{"pool":["DefaultRule_AllowInternetOutBound","DefaultRule_DenyAllInBound","UserRule_AllowHTTPS","UserRule_AllowHTTP","UserRule_AllowSSH","UserRule_AllowRDP","UserRule_AllowSQL","UserRule_DenyAll","UserRule_AllowAppGateway","UserRule_AllowLoadBalancer","UserRule_AllowVnetInBound","UserRule_AllowAzureLoadBalancerInBound","DefaultRule_AllowVnetOutBound","DefaultRule_AllowVnetInBound","UserRule_AllowDNS"]}}
+  ],
+  "jsonBase":{"time":"{{ts}}","systemId":"{{sysid}}","macAddress":"{{mac}}","category":"NetworkSecurityGroupFlowEvent","resourceId":"{{rid}}","operationName":"NetworkSecurityGroupFlowEvents"},
+  "variants":{
+    "allowed_inbound":{"weight":0.30,
+      "fields":{"r":"UserRule_AllowHTTPS","tf":"I","td":"A","fs":"B"},
+      "jsonMerge":{"properties":{"Version":2,"flows":[{"rule":"{{r}}","flows":[{"mac":"{{mac}}","flowTuples":["{{ts}},{{sip}},{{dip}},{{spt}},{{dpt}},{{proto}},{{tf}},{{td}},{{fs}},{{ps2d}},{{bs2d}},{{pd2s}},{{bd2s}}"]}]}]}}},
+    "allowed_outbound":{"weight":0.30,
+      "fields":{"r":"DefaultRule_AllowInternetOutBound","tf":"O","td":"A","fs":"B"},
+      "jsonMerge":{"properties":{"Version":2,"flows":[{"rule":"{{r}}","flows":[{"mac":"{{mac}}","flowTuples":["{{ts}},{{sip}},{{dip}},{{spt}},{{dpt}},{{proto}},{{tf}},{{td}},{{fs}},{{ps2d}},{{bs2d}},{{pd2s}},{{bd2s}}"]}]}]}}},
+    "denied_inbound":{"weight":0.20,
+      "fields":{"r":"DefaultRule_DenyAllInBound","tf":"I","td":"D","fs":"B"},
+      "jsonMerge":{"properties":{"Version":2,"flows":[{"rule":"{{r}}","flows":[{"mac":"{{mac}}","flowTuples":["{{ts}},{{sip}},{{dip}},{{spt}},{{dpt}},{{proto}},{{tf}},{{td}},{{fs}},0,0,0,0"]}]}]}}},
+    "continuation":{"weight":0.15,
+      "fields":{"r":"{{rule}}","tf":"{{tflow}}","td":"A","fs":"C"},
+      "jsonMerge":{"properties":{"Version":2,"flows":[{"rule":"{{r}}","flows":[{"mac":"{{mac}}","flowTuples":["{{ts}},{{sip}},{{dip}},{{spt}},{{dpt}},{{proto}},{{tf}},{{td}},{{fs}},{{ps2d}},{{bs2d}},{{pd2s}},{{bd2s}}"]}]}]}}},
+    "end_flow":{"weight":0.05,
+      "fields":{"r":"{{rule}}","tf":"{{tflow}}","td":"A","fs":"E"},
+      "jsonMerge":{"properties":{"Version":2,"flows":[{"rule":"{{r}}","flows":[{"mac":"{{mac}}","flowTuples":["{{ts}},{{sip}},{{dip}},{{spt}},{{dpt}},{{proto}},{{tf}},{{td}},{{fs}},{{ps2d}},{{bs2d}},{{pd2s}},{{bd2s}}"]}]}]}}}
+  },
+  "template":"json_merge",
+  "correlationHints":{"actor_ip":"sip","target_ip":"dip","target_port":"dpt"}
+}

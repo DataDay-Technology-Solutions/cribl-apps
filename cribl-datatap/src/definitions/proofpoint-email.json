@@ -1,0 +1,39 @@
+{
+  "sourcetype":"proofpoint:tap","vendor":"Proofpoint","product":"Targeted Attack Protection","format":"json",
+  "description":"Proofpoint TAP email security events",
+  "fields":[
+    {"name":"guid","type":"uuid","config":{}},
+    {"name":"qid","type":"string","config":{"pattern":"{random_hex:10}"}},
+    {"name":"mt","type":"timestamp","config":{"format":"iso","jitterMs":5000}},
+    {"name":"mid","type":"string","config":{"pattern":"<{random_hex:12}.{random_hex:8}@{{sdomain}}>"}},
+    {"name":"from","type":"email","config":{"domains":["contoso.com","fabrikam.com","northwind.com","partner-corp.com","vendor-inc.com"]}},
+    {"name":"hfrom","type":"email","config":{"domains":["contoso.com","fabrikam.com","northwind.com","partner-corp.com","vendor-inc.com"]}},
+    {"name":"to","type":"email","config":{"domains":["contoso.com"]}},
+    {"name":"sender","type":"email","config":{"domains":["contoso.com","fabrikam.com","northwind.com","partner-corp.com","vendor-inc.com"]}},
+    {"name":"sip","type":"ip","config":{"external":[{"cidr":"0.0.0.0/0","weight":1}]}},
+    {"name":"subj","type":"string","config":{"pool":["Q3 Financial Report - Action Required","Invoice #INV-2024-8847 Attached","Urgent: Password Expiration Notice","Meeting Notes - Project Phoenix","RE: Quarterly Business Review","Updated Employee Handbook","Shipping Confirmation - Order #88472","Document Shared: Q4 Budget Draft","Action Required: Verify Account","Weekly Status Report","Board Meeting Materials","Expense Report Approval Needed","FW: Contract Amendment v2","System Maintenance Notification","Your package has been delivered","Payroll Update - Please Review","New Benefits Enrollment","IT Security Alert - Immediate Action","Resume - Application for Senior Developer","Purchase Order #PO-2024-3391"]}},
+    {"name":"msize","type":"int","config":{"min":1024,"max":26214400}},
+    {"name":"sdomain","type":"string","config":{"pool":["contoso.com","fabrikam.com","northwind.com","partner-corp.com","vendor-inc.com","mail.contoso.com","smtp.fabrikam.com","unknown-sender.xyz","suspicious-domain.top","legit-service.com"]}},
+    {"name":"cid","type":"string","config":{"pool":["proofpoint_contoso_01","proofpoint_contoso_02","proofpoint_contoso_03"]}}
+  ],
+  "jsonBase":{"GUID":"{{guid}}","QID":"{{qid}}","messageTime":"{{mt}}","messageID":"{{mid}}","fromAddress":["{{from}}"],"headerFrom":"{{hfrom}}","toAddresses":["{{to}}"],"sender":"{{sender}}","senderIP":"{{sip}}","subject":"{{subj}}","messageSize":"{{msize}}","clusterId":"{{cid}}","completelyRewritten":false},
+  "variants":{
+    "clean":{"weight":0.45,
+      "fields":{"cls":"clean","isc":0,"msc":0,"psc":0,"prt":{"type":"enum","config":{"values":["inbound","internal"],"weights":[0.7,0.3]}}},
+      "jsonMerge":{"spamScore":"{{isc}}","malwareScore":"{{msc}}","phishScore":"{{psc}}","impostorScore":0,"classification":"{{cls}}","policyRoutes":["{{prt}}"],"modulesRun":["av","spf","dkim","dmarc","spam"],"quarantineFolder":null,"quarantineRule":null,"messageParts":[{"contentType":"text/html","disposition":"inline","filename":"text.html","md5":"{{qid}}","sha256":"{{guid}}"}],"threatsInfoMap":[]}},
+    "phish":{"weight":0.18,
+      "fields":{"cls":"phish","psc":90,"msc":0,"isc":0,"prt":"inbound","turl":{"type":"string","config":{"pool":["https://login-microsoftonline.evil.com/auth","https://sharepoint-files.phishing.xyz/doc","http://portal-update.malicious.top/verify","https://office365-login.suspicious.net/signin","https://hr-benefits.phishkit.com/enroll","https://payroll-update.scam.xyz/confirm","https://it-helpdesk.fake-domain.com/ticket","https://secure-docusign.phishing.net/review"]}},"tid":{"type":"uuid","config":{}}},
+      "jsonMerge":{"spamScore":10,"malwareScore":"{{msc}}","phishScore":"{{psc}}","impostorScore":0,"classification":"{{cls}}","policyRoutes":["{{prt}}"],"modulesRun":["av","spf","dkim","dmarc","spam","urldefense"],"quarantineFolder":"Phish","quarantineRule":"phish_quarantine","messageParts":[{"contentType":"text/html","disposition":"inline","filename":"text.html","md5":"{{qid}}","sha256":"{{guid}}"}],"threatsInfoMap":[{"campaignId":"{{tid}}","classification":"phish","threat":"{{turl}}","threatID":"{{tid}}","threatStatus":"active","threatTime":"{{mt}}","threatType":"url","threatUrl":"{{turl}}"}]}},
+    "malware":{"weight":0.12,
+      "fields":{"cls":"malware","msc":95,"psc":0,"isc":0,"prt":"inbound","fn":{"type":"string","config":{"pool":["invoice.xlsm","payment_details.docm","shipping_label.exe","report_2024.zip","resume.doc.exe","update_v2.scr","contract_amendment.iso","document.html.lnk"]}},"fsha":{"type":"hash","config":{"algorithm":"sha256"}},"fmd5":{"type":"hash","config":{"algorithm":"md5"}},"tid":{"type":"uuid","config":{}},"tfn":{"type":"string","config":{"pool":["Emotet","QakBot","IcedID","AgentTesla","AsyncRAT","RedLine","Raccoon","FormBook","Remcos","NjRAT"]}}},
+      "jsonMerge":{"spamScore":15,"malwareScore":"{{msc}}","phishScore":"{{psc}}","impostorScore":0,"classification":"{{cls}}","policyRoutes":["{{prt}}"],"modulesRun":["av","spf","dkim","dmarc","spam","sandbox"],"quarantineFolder":"Malware","quarantineRule":"malware_quarantine","messageParts":[{"contentType":"application/octet-stream","disposition":"attached","filename":"{{fn}}","md5":"{{fmd5}}","sha256":"{{fsha}}"}],"threatsInfoMap":[{"campaignId":"{{tid}}","classification":"malware","threat":"{{tfn}}","threatID":"{{tid}}","threatStatus":"active","threatTime":"{{mt}}","threatType":"attachment","threatUrl":""}]}},
+    "spam":{"weight":0.15,
+      "fields":{"cls":"spam","isc":85,"msc":0,"psc":0,"prt":"inbound"},
+      "jsonMerge":{"spamScore":"{{isc}}","malwareScore":"{{msc}}","phishScore":"{{psc}}","impostorScore":0,"classification":"{{cls}}","policyRoutes":["{{prt}}"],"modulesRun":["av","spf","dkim","dmarc","spam"],"quarantineFolder":"Spam","quarantineRule":"spam_quarantine","messageParts":[{"contentType":"text/html","disposition":"inline","filename":"text.html","md5":"{{qid}}","sha256":"{{guid}}"}],"threatsInfoMap":[]}},
+    "impostor":{"weight":0.10,
+      "fields":{"cls":"impostor","isc":0,"msc":0,"psc":30,"prt":"inbound","iscore":90,"impfrom":{"type":"email","config":{"domains":["contoso-ceo.com","c0ntoso.com","contoso.co","fabrlkam.com","northw1nd.com"]}}},
+      "jsonMerge":{"spamScore":5,"malwareScore":"{{msc}}","phishScore":"{{psc}}","impostorScore":"{{iscore}}","classification":"{{cls}}","policyRoutes":["{{prt}}"],"modulesRun":["av","spf","dkim","dmarc","spam","impostor"],"quarantineFolder":"Impostor","quarantineRule":"impostor_quarantine","headerReplyTo":"{{impfrom}}","messageParts":[{"contentType":"text/html","disposition":"inline","filename":"text.html","md5":"{{qid}}","sha256":"{{guid}}"}],"threatsInfoMap":[]}}
+  },
+  "template":"json_merge",
+  "correlationHints":{"actor_ip":"sip","actor_user":"from","target_user":"to"}
+}
