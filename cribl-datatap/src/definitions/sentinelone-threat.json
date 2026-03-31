@@ -1,0 +1,43 @@
+{
+  "sourcetype":"sentinelone:threat","vendor":"SentinelOne","product":"Singularity","format":"json",
+  "description":"SentinelOne Deep Visibility threat events",
+  "templatePrefix":"{",
+  "templateSuffix":"}",
+  "fields":[
+    {"name":"ts","type":"timestamp","config":{"format":"iso","jitterMs":5000}},
+    {"name":"id","type":"hash","config":{"algorithm":"random_hex","length":18}},
+    {"name":"agentId","type":"hash","config":{"algorithm":"random_hex","length":18}},
+    {"name":"host","type":"hostname","config":{"pool":["WKS-FIN-PC07","WKS-IT-PC01","SRV-DC01","SRV-FILE01","LAPTOP-A3B7C9D","SRV-SQL01","WKS-ENG-PC08","SRV-WEB01","LAPTOP-K8M2P4Q","WKS-MKT-PC03"]}},
+    {"name":"dom","type":"string","config":{"pool":["CORP","CONTOSO","WORKGROUP","ACME","NORTHWIND"]}},
+    {"name":"osType","type":"enum","config":{"values":["windows","linux","macos"],"weights":[0.6,0.25,0.15]}},
+    {"name":"agentVer","type":"string","config":{"pool":["23.1.2.400","23.2.1.185","23.3.1.12","22.3.5.196"]}},
+    {"name":"cls","type":"enum","config":{"values":["Malware","PUP","Trojan","Ransomware","Exploit","Suspicious"],"weights":[0.25,0.15,0.2,0.1,0.12,0.18]}},
+    {"name":"clsSrc","type":"enum","config":{"values":["Static","Behavioral","Cloud","Reputation","Engine"],"weights":[0.25,0.3,0.2,0.15,0.1]}},
+    {"name":"conf","type":"enum","config":{"values":["malicious","suspicious","n/a"],"weights":[0.5,0.35,0.15]}},
+    {"name":"desc","type":"string","config":{"pool":["malware detected - trojan.gen.2","behavioral detection of ransomware","suspicious powershell execution","exploit attempt blocked","credential dumping tool detected","fileless attack via WMI"]}},
+    {"name":"sha1","type":"hash","config":{"algorithm":"sha256"}},
+    {"name":"fp","type":"path","config":{"pool":["C:\\Users\\Public\\Downloads\\update.exe","C:\\Windows\\Temp\\svc.exe","C:\\ProgramData\\agent.exe","/tmp/xmrig","C:\\Windows\\System32\\powershell.exe"]}},
+    {"name":"fv","type":"enum","config":{"values":["NotSigned","SignedVerified","SignedNotVerified"],"weights":[0.5,0.3,0.2]}},
+    {"name":"icat","type":"enum","config":{"values":["InfoStealer","Exploitation","Evasion","General","Ransomware","Persistence","C2"],"weights":[0.15,0.15,0.15,0.15,0.1,0.15,0.15]}},
+    {"name":"idesc","type":"string","config":{"pool":["Process injection via WriteProcessMemory","Encoded PowerShell command execution","Registry run key modification","LSASS memory access attempt","Communication with known C2"]}},
+    {"name":"iid","type":"string","config":{"pool":["S1-IND-0001","S1-IND-0042","S1-IND-0105","S1-IND-0233","S1-IND-0310"]}},
+    {"name":"init","type":"enum","config":{"values":["agent_policy","cloud_detection","full_disk_scan","on_demand_scan"],"weights":[0.4,0.3,0.15,0.15]}},
+    {"name":"ms","type":"enum","config":{"values":["mitigated","active","blocked","not_mitigated"],"weights":[0.4,0.2,0.3,0.1]}},
+    {"name":"site","type":"string","config":{"pool":["Default Site","Corporate HQ","Remote Offices","Data Center"]}},
+    {"name":"tname","type":"string","config":{"pool":["Trojan.GenericKD.46785231","Ransom.Win32.STOP","Exploit.CVE-2021-34527","HackTool.Mimikatz","Trojan.CobaltStrike.Beacon","Miner.XMRig","Trojan.Emotet.Gen","Ransom.LockBit3"]}},
+    {"name":"usr","type":"username","config":{"pattern":"{first}.{last}"}}
+  ],
+  "variants":{
+    "mitigated":{"weight":0.40,
+      "fields":{"ms":"mitigated","conf":"malicious"},
+      "bodyTemplate":"\"id\":\"{{id}}\",\"agentId\":\"{{agentId}}\",\"agentComputerName\":\"{{host}}\",\"agentDomain\":\"{{dom}}\",\"agentOsType\":\"{{osType}}\",\"agentVersion\":\"{{agentVer}}\",\"classification\":\"{{cls}}\",\"classificationSource\":\"{{clsSrc}}\",\"confidenceLevel\":\"{{conf}}\",\"createdAt\":\"{{ts}}\",\"description\":\"{{desc}}\",\"fileContentHash\":\"{{sha1}}\",\"filePath\":\"{{fp}}\",\"fileVerificationType\":\"{{fv}}\",\"indicators\":[{\"category\":\"{{icat}}\",\"description\":\"{{idesc}}\",\"ids\":[\"{{iid}}\"]}],\"initiatedBy\":\"{{init}}\",\"mitigationStatus\":\"{{ms}}\",\"siteName\":\"{{site}}\",\"threatName\":\"{{tname}}\",\"updatedAt\":\"{{ts}}\",\"username\":\"{{usr}}\",\"whiteningOptions\":[\"hash\",\"path\",\"certificate\"]"},
+    "active":{"weight":0.30,
+      "fields":{"ms":"active","conf":"suspicious"},
+      "bodyTemplate":"\"id\":\"{{id}}\",\"agentId\":\"{{agentId}}\",\"agentComputerName\":\"{{host}}\",\"agentDomain\":\"{{dom}}\",\"agentOsType\":\"{{osType}}\",\"agentVersion\":\"{{agentVer}}\",\"classification\":\"{{cls}}\",\"classificationSource\":\"{{clsSrc}}\",\"confidenceLevel\":\"{{conf}}\",\"createdAt\":\"{{ts}}\",\"description\":\"{{desc}}\",\"fileContentHash\":\"{{sha1}}\",\"filePath\":\"{{fp}}\",\"fileVerificationType\":\"{{fv}}\",\"indicators\":[{\"category\":\"{{icat}}\",\"description\":\"{{idesc}}\",\"ids\":[\"{{iid}}\"]}],\"initiatedBy\":\"{{init}}\",\"mitigationStatus\":\"{{ms}}\",\"siteName\":\"{{site}}\",\"threatName\":\"{{tname}}\",\"updatedAt\":\"{{ts}}\",\"username\":\"{{usr}}\",\"whiteningOptions\":[\"hash\",\"path\"]"},
+    "blocked":{"weight":0.30,
+      "fields":{"ms":"blocked","conf":"malicious","init":"agent_policy"},
+      "bodyTemplate":"\"id\":\"{{id}}\",\"agentId\":\"{{agentId}}\",\"agentComputerName\":\"{{host}}\",\"agentDomain\":\"{{dom}}\",\"agentOsType\":\"{{osType}}\",\"agentVersion\":\"{{agentVer}}\",\"classification\":\"{{cls}}\",\"classificationSource\":\"{{clsSrc}}\",\"confidenceLevel\":\"{{conf}}\",\"createdAt\":\"{{ts}}\",\"description\":\"{{desc}}\",\"fileContentHash\":\"{{sha1}}\",\"filePath\":\"{{fp}}\",\"fileVerificationType\":\"{{fv}}\",\"indicators\":[{\"category\":\"{{icat}}\",\"description\":\"{{idesc}}\",\"ids\":[\"{{iid}}\"]}],\"initiatedBy\":\"{{init}}\",\"mitigationStatus\":\"{{ms}}\",\"siteName\":\"{{site}}\",\"threatName\":\"{{tname}}\",\"updatedAt\":\"{{ts}}\",\"username\":\"{{usr}}\",\"whiteningOptions\":[\"hash\",\"path\",\"certificate\"]"}
+  },
+  "template":"{{templatePrefix}}{{bodyTemplate}}{{templateSuffix}}",
+  "correlationHints":{"actor_user":"usr","actor_host":"host","file_hash":"sha1"}
+}

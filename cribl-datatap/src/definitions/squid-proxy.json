@@ -1,0 +1,36 @@
+{
+  "sourcetype":"squid:access","vendor":"Squid","product":"Squid Proxy","format":"squid_native",
+  "description":"Squid proxy access log in native format",
+  "fields":[
+    {"name":"ts","type":"timestamp","config":{"format":"epoch_ms","jitterMs":3000}},
+    {"name":"dur","type":"int","config":{"min":1,"max":45000}},
+    {"name":"cip","type":"ip","config":{"internal":[{"cidr":"10.0.0.0/8","weight":0.5},{"cidr":"192.168.0.0/16","weight":0.3},{"cidr":"172.16.0.0/12","weight":0.2}]}},
+    {"name":"rc","type":"enum","config":{"values":["TCP_HIT/200","TCP_MISS/200","TCP_MISS/302","TCP_DENIED/403","TCP_MISS/404","TCP_TUNNEL/200","TCP_REFRESH_HIT/200","TCP_REFRESH_MISS/200","TCP_MEM_HIT/200","TCP_MISS/301","TCP_MISS/503","TCP_DENIED/407"],"weights":[0.2,0.25,0.08,0.07,0.06,0.12,0.05,0.04,0.03,0.03,0.03,0.04]}},
+    {"name":"bytes","type":"int","config":{"min":200,"max":2097152}},
+    {"name":"method","type":"enum","config":{"values":["GET","POST","CONNECT","PUT","HEAD","OPTIONS","DELETE","PATCH"],"weights":[0.42,0.18,0.2,0.04,0.06,0.04,0.03,0.03]}},
+    {"name":"url","type":"string","config":{"pool":["http://www.google.com/","https://login.microsoftonline.com:443","https://outlook.office365.com/owa/","http://ocsp.digicert.com/","https://api.github.com/repos","http://ctldl.windowsupdate.com/msdownload/update/","https://slack.com/api/conversations.list","https://zoom.us/j/123456789","https://www.linkedin.com/feed/","https://cdn.cloudflare.com/static/js/app.min.js","http://www.example.com/downloads/file.zip","https://s3.amazonaws.com/bucket/object","https://drive.google.com/file/d/abc123","http://wpad.corp.contoso.com/wpad.dat","http://suspicious-download.xyz/payload.exe","https://raw.githubusercontent.com/user/repo/main/script.sh","http://bit.ly/3xR4mPl","https://app.datadoghq.com/api/v1/events","https://portal.azure.com/","http://internal.contoso.com/hr/benefits"]}},
+    {"name":"usr","type":"enum","config":{"values":["-","jsmith","admin","jdoe","mwilson","agarcia","tchen","rbrown","kpatel","lnguyen"],"weights":[0.3,0.08,0.05,0.08,0.08,0.08,0.08,0.08,0.09,0.08]}},
+    {"name":"pc","type":"enum","config":{"values":["DIRECT/","ROUNDROBIN_PARENT/","FIRSTUP_PARENT/","NONE/-"],"weights":[0.7,0.12,0.1,0.08]}},
+    {"name":"phost","type":"string","config":{"pool":["www.google.com","login.microsoftonline.com","outlook.office365.com","api.github.com","cdn.cloudflare.com","s3.amazonaws.com","zoom.us","slack.com","www.linkedin.com","drive.google.com","portal.azure.com","-"]}},
+    {"name":"ct","type":"enum","config":{"values":["text/html","application/json","image/png","image/jpeg","text/css","application/javascript","application/octet-stream","text/plain","-","application/xml","application/pdf"],"weights":[0.2,0.15,0.08,0.06,0.08,0.1,0.06,0.05,0.12,0.05,0.05]}}
+  ],
+  "variants":{
+    "hit":{"weight":0.25,
+      "fields":{"rc":"TCP_HIT/200"},
+      "template":"{{ts}} {{dur}} {{cip}} TCP_HIT/200 {{bytes}} {{method}} {{url}} {{usr}} {{pc}}{{phost}} {{ct}}"},
+    "miss":{"weight":0.30,
+      "fields":{"rc":"TCP_MISS/200"},
+      "template":"{{ts}} {{dur}} {{cip}} TCP_MISS/200 {{bytes}} {{method}} {{url}} {{usr}} {{pc}}{{phost}} {{ct}}"},
+    "tunnel":{"weight":0.20,
+      "fields":{"rc":"TCP_TUNNEL/200","method":"CONNECT"},
+      "template":"{{ts}} {{dur}} {{cip}} TCP_TUNNEL/200 {{bytes}} CONNECT {{url}} {{usr}} {{pc}}{{phost}} {{ct}}"},
+    "denied":{"weight":0.12,
+      "fields":{"rc":"TCP_DENIED/403"},
+      "template":"{{ts}} {{dur}} {{cip}} TCP_DENIED/403 {{bytes}} {{method}} {{url}} {{usr}} NONE/- - text/html"},
+    "error":{"weight":0.13,
+      "fields":{},
+      "template":"{{ts}} {{dur}} {{cip}} {{rc}} {{bytes}} {{method}} {{url}} {{usr}} {{pc}}{{phost}} {{ct}}"}
+  },
+  "template":"{{ts}} {{dur}} {{cip}} {{rc}} {{bytes}} {{method}} {{url}} {{usr}} {{pc}}{{phost}} {{ct}}",
+  "correlationHints":{"actor_ip":"cip","actor_user":"usr","target_url":"url"}
+}
