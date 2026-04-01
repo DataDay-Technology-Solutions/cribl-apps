@@ -1,0 +1,44 @@
+output: default
+asyncFuncTimeout: 1000
+functions:
+  - id: code
+    filter: "true"
+    disabled: false
+    conf:
+      maxNumOfIterations: 5000
+      code: |-
+        var ri = function(a,b) { return Math.floor(Math.random()*(b-a+1))+a; };
+        var pk = function(a) { return a[Math.floor(Math.random()*a.length)]; };
+        var pip = function() { return '10.'+ri(0,255)+'.'+ri(0,255)+'.'+ri(1,254); };
+        var rip = function() { return ri(1,223)+'.'+ri(0,255)+'.'+ri(0,255)+'.'+ri(1,254); };
+        var hex = function(n) { var s=''; for(var i=0;i<n;i++) s+='0123456789abcdef'[Math.floor(Math.random()*16)]; return s; };
+        var uuid = function() { return hex(8)+'-'+hex(4)+'-4'+hex(3)+'-'+pk(['8','9','a','b'])+hex(3)+'-'+hex(12); };
+        var fns = ['james','mary','robert','jennifer','david','sarah','michael','linda','kevin','nancy','carlos','sofia','wei','priya','omar','ali','yuki','ravi','fatima','elena'];
+        var lns = ['smith','johnson','williams','brown','jones','garcia','miller','davis','wilson','moore','martinez','lee','nguyen','patel','kim','chen','torres','wright','clark','lewis'];
+        var nm = function() { return pk(fns)+'.'+pk(lns); };
+        var ts = function() { return new Date().toISOString().replace('T',' ').substring(0,19).replace(/-/g,'/'); };
+        var iso = function() { return new Date().toISOString(); };
+        var ser = function() { return '00725100'+String(ri(0,9999999)).padStart(7,'0'); };
+        var st = 'pan:traffic';
+        try { var t = JSON.parse(__e._raw); if (t && t.sourcetype) st = t.sourcetype; } catch(e) {}
+        var rules = ['Allow-Web','Deny-All','Corp-Egress','VPN-Access','DMZ-Inbound','Block-Malware','Allow-DNS','SaaS-Allow','Guest-WiFi','Partner-VPN'];
+        var apps = ['ssl','web-browsing','dns','zoom','ms-teams','slack','ms-office365','github-base','ssh','ldap','smtp','salesforce','aws-console'];
+        if (st === 'pan:traffic') {
+          __e._raw = ts()+','+ser()+',TRAFFIC,'+pk(['end','start','drop','deny'])+','+ts()+','+pip()+','+rip()+',198.51.100.'+ri(1,254)+',10.10.'+ri(0,255)+'.'+ri(1,254)+','+pk(rules)+',corp\\'+nm()+',,'+pk(apps)+',vsys1,'+pk(['trust','untrust','dmz','vpn'])+','+pk(['untrust','trust','dmz'])+',ethernet1/'+ri(1,12)+',ethernet1/'+ri(1,12)+',Log-Forwarding-Default,'+ri(100000,9999999)+','+ri(1,12)+','+ri(49152,65535)+','+pk([443,80,53,8080,22,25,3389])+','+ri(49152,65535)+','+pk([443,80])+',0x400000,'+pk(['tcp','tcp','tcp','udp','icmp'])+','+pk(['allow','allow','allow','allow','deny','drop'])+','+ri(60,524288)+','+ri(40,262144)+','+ri(40,262144)+','+ri(1,5000)+','+ts()+','+ri(0,3600)+','+pk(['general-internet','business-and-economy','streaming-media','cloud-infrastructure','social-networking','content-delivery-networks','encrypted-tunnel','software-updates'])+','+ri(1,99999999)+','+pk(['0x0','0x8000000000000000'])+','+pk(['United States','10.0.0.0-10.255.255.255','192.168.0.0-192.168.255.255','Germany','Japan','Ireland'])+','+pk(['United States','Germany','Ireland','Japan','10.0.0.0-10.255.255.255'])+','+ri(1,2500)+','+ri(1,2500)+','+pk(['tcp-fin','tcp-rst-from-client','tcp-rst-from-server','aged-out','threat','policy-deny']);
+        } else if (st === 'syslog') {
+          var fac = pk([0,1,3,4,10,13,16]); var sev = pk([3,4,5,6]); var pri = fac*8+sev;
+          __e._raw = '<'+pri+'>1 '+iso()+' '+pk(['web-prod-01','db-prod-01','app-prod-01','lb-prod-01','jump-01','monitor-01','log-collector-01'])+' '+pk(['sshd','sudo','cron','systemd','nginx','postfix','kernel','auditd','haproxy','docker'])+' '+ri(1000,65535)+' - - '+pk(['session opened for user '+nm(),'Accepted publickey for '+nm()+' from '+pip()+' port '+ri(1024,65535),'process started successfully','service restarted','connection from '+pip(),'Failed password for '+nm()+' from '+rip()+' port '+ri(1024,65535),'disk usage at '+ri(40,98)+'%','OUT=eth0 SRC='+rip()+' DST='+pip()+' PROTO=TCP']);
+        } else if (st === 'WinEventLog:Security') {
+          var eid = pk([4624,4625,4672,4688,4720,4740]);
+          __e._raw = '<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event"><System><Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-A5BA-3E3B0328C30D}"/><EventID>'+eid+'</EventID><Level>0</Level><TimeCreated SystemTime="'+iso()+'"/><EventRecordID>'+ri(10000000,99999999)+'</EventRecordID><Computer>'+pk(['DC01','DC02','FS01','FS02','WKS-FIN-PC01','WKS-IT-PC03','SRV-SQL01','SRV-WEB01'])+'.corp.contoso.com</Computer></System><EventData><Data Name="SubjectUserSid">S-1-5-21-'+ri(1000000000,3999999999)+'-'+ri(1000000000,3999999999)+'-'+ri(1000,9999)+'</Data><Data Name="TargetUserName">'+nm()+'</Data><Data Name="TargetDomainName">'+pk(['CORP','CONTOSO','ACME','NORTHWIND'])+'</Data><Data Name="LogonType">'+pk([2,3,7,10])+'</Data><Data Name="IpAddress">'+pip()+'</Data><Data Name="WorkstationName">WKS-'+pk(['FIN','IT','HR','ENG','MKT'])+'-PC'+String(ri(1,30)).padStart(2,'0')+'</Data></EventData></Event>';
+        } else if (st === 'crowdstrike:falcon:event') {
+          var ev = pk(['ProcessRollup2','DnsRequest','NetworkConnectIP4','UserLogon','SuspiciousActivity','DetectionSummaryEvent']);
+          __e._raw = JSON.stringify({metadata:{customerIDString:hex(32),eventType:ev},event:{event_simpleName:ev,timestamp:Date.now(),aid:hex(32),ComputerName:pk(['WKS','SRV','LAP','DC'])+'-'+pk(['NYC','LAX','CHI','SEA','DFW'])+'-'+ri(1,999),UserName:nm(),SeverityName:pk(['Informational','Low','Medium','High','Critical']),Tactic:pk(['InitialAccess','Execution','Persistence','CredentialAccess','LateralMovement','Exfiltration'])}});
+        } else if (st === 'okta:system') {
+          __e._raw = JSON.stringify({uuid:uuid(),published:iso(),version:'0',eventType:pk(['user.session.start','user.session.end','user.authentication.sso','user.authentication.auth_via_mfa','user.account.lock','policy.evaluate_sign_on']),severity:pk(['DEBUG','INFO','INFO','INFO','WARN','ERROR']),actor:{id:'00u'+hex(11),type:'User',alternateId:nm()+'@contoso.com',displayName:pk(fns).charAt(0).toUpperCase()+pk(fns).slice(1)+' '+pk(lns).charAt(0).toUpperCase()+pk(lns).slice(1)},client:{ipAddress:rip(),device:pk(['Computer','Mobile','Tablet']),geographicalContext:{city:pk(['New York','San Francisco','London','Tokyo','Sydney','Toronto']),country:pk(['US','US','GB','JP','AU','CA'])}},outcome:{result:pk(['SUCCESS','SUCCESS','SUCCESS','FAILURE'])}});
+        } else {
+          __e._raw = JSON.stringify({sourcetype:st,generated:true,timestamp:iso(),src_ip:pip(),dst_ip:rip(),user:nm(),id:uuid(),action:pk(['allow','deny','alert','block','detect']),severity:pk(['informational','low','medium','high','critical']),host:pk(['srv','wks','app','db','fw'])+'-'+ri(1,999),message:'DataTap generated event for '+st});
+        }
+        __e._time = Date.now() / 1000;
+        __e.sourcetype = st;
+        __e.source = 'datatap';

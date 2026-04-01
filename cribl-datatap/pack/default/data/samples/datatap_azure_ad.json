@@ -1,0 +1,3 @@
+[
+{"_raw":"{\"_datatap\":true,\"sourcetype\":\"azure:aad:signin\"}","_time":${timestamp:%s}}
+]
