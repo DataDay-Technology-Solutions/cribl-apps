@@ -1,0 +1,95 @@
+datatap_all:
+  sampleName: datatap_all.json
+  created: 1775000000000
+  isTemplate: true
+  size: 500
+  numEvents: 5
+  description: "DataTap - All 5 core sourcetypes (pan:traffic, syslog, WinEventLog:Security, crowdstrike:falcon:event, okta:system)"
+
+datatap_pan_traffic:
+  sampleName: datatap_pan_traffic.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Palo Alto PAN-OS traffic logs"
+
+datatap_syslog:
+  sampleName: datatap_syslog.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - RFC 5424 syslog events"
+
+datatap_windows:
+  sampleName: datatap_windows.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Windows Security Event Log (XML)"
+
+datatap_crowdstrike:
+  sampleName: datatap_crowdstrike.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - CrowdStrike Falcon detection events"
+
+datatap_okta:
+  sampleName: datatap_okta.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Okta System Log events"
+
+datatap_zscaler:
+  sampleName: datatap_zscaler.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Zscaler NSS web proxy logs"
+
+datatap_cisco_asa:
+  sampleName: datatap_cisco_asa.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Cisco ASA firewall logs"
+
+datatap_aws_cloudtrail:
+  sampleName: datatap_aws_cloudtrail.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - AWS CloudTrail API activity logs"
+
+datatap_cloudflare:
+  sampleName: datatap_cloudflare.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Cloudflare WAF event logs"
+
+datatap_fortinet:
+  sampleName: datatap_fortinet.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Fortinet FortiGate traffic logs"
+
+datatap_azure_ad:
+  sampleName: datatap_azure_ad.json
+  created: 1775000000000
+  isTemplate: true
+  size: 100
+  numEvents: 1
+  description: "DataTap - Azure Active Directory sign-in logs"

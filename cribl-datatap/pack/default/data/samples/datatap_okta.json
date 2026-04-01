@@ -1,0 +1,3 @@
+[
+{"_raw":"{\"_datatap\":true,\"sourcetype\":\"okta:system\"}","_time":${timestamp:%s}}
+]

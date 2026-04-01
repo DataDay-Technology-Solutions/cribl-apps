@@ -1,0 +1,9 @@
+{
+  "name": "cribl-datatap",
+  "version": "0.1.0",
+  "description": "On-demand production-realistic streaming data generation for Cribl Stream. Generates high-uniqueness events for 5+ sourcetypes with cross-sourcetype correlation and attack scenarios.",
+  "author": "DataDay Technology Solutions",
+  "type": "collection",
+  "tags": ["datagen", "testing", "demo", "security", "sample-data"],
+  "minCriblVersion": "4.0.0"
+}
