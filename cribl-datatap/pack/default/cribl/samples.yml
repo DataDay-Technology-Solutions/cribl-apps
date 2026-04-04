@@ -1,7 +1,47 @@
+datatap_top10:
+  sampleName: datatap_top10.json
+  isTemplate: true
+  created: 1775000000000
+  size: 1000
+  numEvents: 10
+  description: "DataTap - Top 10 enterprise sourcetypes"
+
+datatap_security:
+  sampleName: datatap_security.json
+  isTemplate: true
+  created: 1775000000000
+  size: 1200
+  numEvents: 12
+  description: "DataTap - Security-focused sourcetype mix"
+
+datatap_o11y:
+  sampleName: datatap_o11y.json
+  isTemplate: true
+  created: 1775000000000
+  size: 1000
+  numEvents: 10
+  description: "DataTap - Observability sourcetype mix"
+
+datatap_scenario_bruteforce:
+  sampleName: datatap_scenario_bruteforce.json
+  isTemplate: true
+  created: 1775000000000
+  size: 700
+  numEvents: 5
+  description: "DataTap SCENARIO - Brute force attack (correlated)"
+
+datatap_scenario_normalday:
+  sampleName: datatap_scenario_normalday.json
+  isTemplate: true
+  created: 1775000000000
+  size: 900
+  numEvents: 8
+  description: "DataTap SCENARIO - Normal business day"
+
 datatap_all:
   sampleName: datatap_all.json
-  created: 1775000000000
   isTemplate: true
+  created: 1775000000000
   size: 500
   numEvents: 5
   description: "DataTap - All 5 core sourcetypes (pan:traffic, syslog, WinEventLog:Security, crowdstrike:falcon:event, okta:system)"
