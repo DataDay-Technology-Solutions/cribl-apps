@@ -215,7 +215,7 @@ functions:
           else if(acode==="106023")amsg="Deny "+pk(["tcp","udp","icmp"])+" src "+pk(["inside","outside","dmz"])+":"+(S.mode!=="stream"?sip:rip())+"/"+ep()+" dst "+pk(["outside","inside","dmz"])+":"+(S.mode!=="stream"?dip:pip())+"/"+wp()+" by access-group "+pk(["outside_in","inside_out","dmz_in"]);
           else if(acode==="305011")amsg="Built "+pk(["dynamic","static"])+" "+pk(["TCP","UDP"])+" translation from "+pk(["inside","dmz"])+":"+pip()+"/"+ep()+" to outside:"+rip()+"/"+ep();
           else amsg="User '"+usr+"' executed the 'enable' command";
-          __e._raw=iso()+" "+pk(["ASA-FW-01","ASA-FW-02","ASA-DC-01"])+"."+pk(doms)+" %ASA-"+asev+"-"+acode+": "+amsg;
+          __e._raw=iso()+" "+pk(["ASA-FW","ASA-DC","ASA-BR","ASA-VPN","ASA-DMZ"])+"-"+String(ri(1,99)).padStart(2,"0")+"."+pk(doms)+" %ASA-"+asev+"-"+acode+": "+amsg;
         }else if(st==="aws:cloudtrail"){
           var csrc=pk(["ec2.amazonaws.com","s3.amazonaws.com","iam.amazonaws.com","sts.amazonaws.com","lambda.amazonaws.com","rds.amazonaws.com","kms.amazonaws.com","cloudtrail.amazonaws.com"]);
           var cevt=pk(["DescribeInstances","PutObject","GetObject","AssumeRole","RunInstances","CreateUser","StopInstances","DeleteBucket","AuthorizeSecurityGroupIngress","ListBuckets","GetCallerIdentity"]);
