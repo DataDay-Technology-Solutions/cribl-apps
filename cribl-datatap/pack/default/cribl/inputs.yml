@@ -1,0 +1,10 @@
+datatap:
+  type: datagen
+  disabled: false
+  pipeline: cribl-datatap:datatap_generate
+  sendToRoutes: false
+  samples:
+    - sample: datatap_top10
+      eventsPerSec: 10
+  description: "DataTap — Production-realistic streaming data. Change the sample to switch sourcetypes."
+  tags: datatap

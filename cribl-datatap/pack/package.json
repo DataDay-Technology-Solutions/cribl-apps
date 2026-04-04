@@ -1,9 +1,10 @@
 {
   "name": "cribl-datatap",
-  "version": "2.0.0",
-  "description": "Production-realistic streaming data generation for Cribl Stream. 110+ sourcetypes, correlated attack scenarios, time-aware generation, deep vendor fidelity for top 10 sources.",
+  "version": "2.0.1",
+  "description": "Production-realistic streaming data on demand. 110 sourcetypes, vendor-accurate formats, correlated attack scenarios. Install → select sourcetype → data flows.",
   "author": "DataDay Technology Solutions",
   "type": "collection",
-  "tags": ["datagen", "testing", "demo", "security", "sample-data"],
-  "minCriblVersion": "4.0.0"
+  "tags": ["datagen", "testing", "demo", "security", "observability", "sample-data", "pack-development"],
+  "minCriblVersion": "4.0.0",
+  "displayName": "DataTap — On-Demand Streaming Data"
 }
