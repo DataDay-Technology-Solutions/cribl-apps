@@ -25,7 +25,7 @@ done
 
 # Create datagen sources — one per sourcetype
 # Format: id|sample|disabled|description
-SOURCES="datatap-top10|datatap_top10|false|Top 10 Enterprise (auto-cycling)
+SOURCES="datatap-top10|datatap_top10|true|Top 10 Enterprise (auto-cycling)
 datatap-pan|datatap_pan|true|Palo Alto PAN-OS Traffic
 datatap-syslog|datatap_syslog|true|Syslog RFC 5424
 datatap-windows|datatap_windows|true|Windows Security Event Log

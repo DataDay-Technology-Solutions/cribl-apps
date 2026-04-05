@@ -139,11 +139,11 @@ functions:
         var hr=new Date().getHours();var dow=new Date().getDay();
         S.biz=(hr>=8&&hr<18&&dow>0&&dow<6);S.rush=(hr>=8&&hr<10&&dow>0&&dow<6);S.night=(hr>=22||hr<6);
         var _autoTypes=["pan:traffic","syslog","WinEventLog:Security","crowdstrike:falcon:event","okta:system","cisco:asa","aws:cloudtrail","fortigate:traffic","dns:query","prometheus:metrics"];var st="pan:traffic";var scen=null;
-        try{var t=JSON.parse(__e._raw);if(t.sourcetype)st=t.sourcetype;if(t.scenario)scen=t.scenario}catch(e){st=_autoTypes[(__e.__eventId||Math.floor(Math.random()*_autoTypes.length))%_autoTypes.length]}
+        var _explicit=false;try{var t=JSON.parse(__e._raw);if(t.sourcetype){st=t.sourcetype;_explicit=true}if(t.scenario)scen=t.scenario}catch(e){st=_autoTypes[(__e.__eventId||Math.floor(Math.random()*_autoTypes.length))%_autoTypes.length]}
         if(scen)S.mode=scen
                 if(S.mode!=="stream"){A.atk.ip=A.atk.ip;A.vic.u=A.vic.u;A.vic.ip=A.vic.ip;A.vic.h=A.vic.h;A.vic.em=A.vic.em;A.tgt.h=A.tgt.h;A.tgt.ip=A.tgt.ip;A.atk.ua=A.atk.ua;A.atk.geo=A.atk.geo}
         if(S.mode==="brute-force"){var mins=Math.floor(Date.now()/60000)%10;if(mins<2)S.ph=0;else if(mins<6)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
-        if(S.mode==="stream"){if(S.rush&&Math.random()<0.4)st=pk(["okta:system","azure:aad:signin","duo:authentication","WinEventLog:Security"]);if(S.night&&Math.random()<0.3)st=pk(["syslog","linux:auditd","kubernetes:audit","prometheus:metrics"])}
+        if(S.mode==="stream"&&!_explicit){if(S.rush&&Math.random()<0.4)st=pk(["okta:system","azure:aad:signin","duo:authentication","WinEventLog:Security"]);if(S.night&&Math.random()<0.3)st=pk(["syslog","linux:auditd","kubernetes:audit","prometheus:metrics"])}
         var sip=A.atk.ip||pip(),dip=A.tgt.ip||rip(),usr=A.vic.u||nm(),vip=A.vic.ip||pip();
         if(st==="pan:traffic"){
           var act=pk(["allow","allow","allow","allow","deny","drop","reset-both"]);
