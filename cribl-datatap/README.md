@@ -1,186 +1,122 @@
-# Cribl DataTap
+# DataTap — Streaming Sample Data for Cribl Stream
 
-Production-realistic streaming data generator for security, observability, and IT operations pipelines.
+Generate production-realistic streaming data for 110+ sourcetypes. One command to install, data flows in seconds.
 
-## Features
+## Install
 
-- **5 sourcetype definitions** covering firewall, endpoint, identity, syslog, and EDR data
-- **4 attack/activity scenarios** with multi-phase correlated event generation
-- **Streaming mode** with configurable events-per-second and duration controls
-- **Scenario engine** that produces correlated events across multiple sourcetypes using shared actors
-- **Multiple output formats**: raw log lines, JSON, NDJSON, CSV
-- **Zero external dependencies** -- runs on Node.js 18+ with nothing to install
-- **Pipe-friendly** -- event data goes to stdout, stats and status go to stderr
-- **ANSI-colored CLI** with live stats, phase transitions, and helpful error messages
+You need a running Cribl Stream instance (Docker, VM, or bare metal).
 
-## Quick Start
+### Docker
 
 ```bash
-# Install (from source)
-git clone <repo-url> && cd DataTap && npm link
-
-# Generate 10 Palo Alto firewall log lines
-datatap generate pan:traffic -n 10
-
-# Stream syslog events at 100 eps for 30 seconds
-datatap stream syslog --eps 100 -d 30
-
-# Run a brute-force attack scenario at 10x speed
-datatap scenario brute-force --time-scale 10 --verbose
+git clone https://github.com/DataDay-Technology-Solutions/cribl-apps.git
+cd cribl-apps/cribl-datatap
+bash scripts/install.sh
 ```
 
-## Usage
-
-### Generate Events
+The script auto-detects your Cribl container. If you have multiple containers or a custom name:
 
 ```bash
-# Single event (raw format)
-datatap generate pan:traffic
-
-# Multiple events as pretty-printed JSON
-datatap generate okta:system -n 5 --format json --pretty
-
-# CSV output for spreadsheet import
-datatap generate syslog -n 100 --format csv > events.csv
+bash scripts/install.sh my-cribl-container 9001
 ```
 
-### Stream Events
+That's it. Open your Cribl UI. `datatap-top10` is already streaming.
+
+### Non-Docker (VM / bare metal)
+
+Copy the files manually to your Cribl install directory:
 
 ```bash
-# Stream at default 10 eps (Ctrl+C to stop)
-datatap stream pan:traffic
+# Copy samples
+cp pack/default/data/samples/datatap_*.json /opt/cribl/data/samples/
 
-# Multiple sourcetypes, 50 eps, for 2 minutes
-datatap stream syslog okta:system pan:traffic --eps 50 -d 120
+# Copy config
+cp pack/default/cribl/samples.yml /opt/cribl/local/cribl/samples.yml
+cp pack/default/cribl/inputs_standalone.yml /opt/cribl/local/cribl/inputs.yml
 
-# NDJSON to file for pipeline ingestion
-datatap stream crowdstrike-falcon --format ndjson -o events.jsonl
+# Copy pipeline
+mkdir -p /opt/cribl/local/cribl/pipelines/datatap_generate
+cp pack/default/cribl/pipelines/datatap_generate/conf.yml /opt/cribl/local/cribl/pipelines/datatap_generate/
+
+# Restart Cribl
+systemctl restart cribl    # or: /opt/cribl/bin/cribl restart
 ```
 
-### Run Scenarios
+### Distributed (Leader + Workers)
+
+Add the files to your Cribl config git repo:
 
 ```bash
-# Run with live phase output
-datatap scenario brute-force --verbose
+# In your Cribl config repo, under the target worker group:
+cp -r pack/default/data/samples/datatap_*.json groups/<worker-group>/data/samples/
+cp pack/default/cribl/samples.yml groups/<worker-group>/local/cribl/samples.yml
+cp pack/default/cribl/inputs_standalone.yml groups/<worker-group>/local/cribl/inputs.yml
+mkdir -p groups/<worker-group>/local/cribl/pipelines/datatap_generate
+cp pack/default/cribl/pipelines/datatap_generate/conf.yml groups/<worker-group>/local/cribl/pipelines/datatap_generate/
 
-# Speed up 10x for quick testing
-datatap scenario data-exfil --time-scale 10 --eps 100
-
-# Quiet mode -- just the events
-datatap scenario insider-threat --format ndjson -o scenario.jsonl
+git add -A && git commit -m "Add DataTap" && git push
 ```
 
-### List and Inspect
+Leader deploys to workers automatically.
 
-```bash
-# List everything
-datatap list
+## After Install
 
-# List just sourcetypes or scenarios
-datatap list sourcetypes
-datatap list scenarios
+Open your Cribl UI and go to **Data > Sources > Datagen**.
 
-# Detailed info about a sourcetype
-datatap info pan:traffic
-datatap info okta:system
+You'll see 15 source categories. `datatap-top10` is already enabled and streaming 10 events/sec of mixed enterprise data (PAN firewall, syslog, WinEventLog, CrowdStrike, Okta, Cisco ASA, CloudTrail, FortiGate, DNS, Kubernetes).
+
+Enable any other category you need:
+
+| Source | What it streams | Default EPS |
+|--------|----------------|-------------|
+| **datatap-top10** | 10 core enterprise sourcetypes | 10 |
+| **datatap-prometheus** | High-cardinality Prometheus metrics | 100 |
+| **datatap-metrics** | Prometheus + StatsD + Graphite + InfluxDB + CloudWatch + OTel | 100 |
+| **datatap-security** | PAN, WinEventLog, CrowdStrike, Okta, ASA, CloudTrail + 6 more | 10 |
+| **datatap-network** | PAN, ASA, FortiGate, Check Point, pfSense, NetFlow, Zeek, Suricata | 10 |
+| **datatap-endpoint** | CrowdStrike, SentinelOne, Carbon Black, Defender, Cortex XDR, Wazuh, Elastic | 10 |
+| **datatap-identity** | Okta, Duo, Azure AD, Auth0, CyberArk, BeyondTrust | 10 |
+| **datatap-cloud-aws** | CloudTrail, GuardDuty, VPC Flow, Lambda, WAF, Config, SecurityHub, Route53 | 10 |
+| **datatap-cloud-azure** | AAD Sign-in, Activity, NSG Flow, Firewall, Key Vault, O365 | 10 |
+| **datatap-cloud-gcp** | Audit, Firewall, Logging | 10 |
+| **datatap-o11y** | Prometheus, OTel, Jaeger, Log4j, Pino, K8s, Docker, Sentry | 10 |
+| **datatap-devops** | K8s audit/events, Jenkins, GitLab, ArgoCD, Terraform, Docker | 10 |
+| **datatap-applog** | Java Log4j, Python, Node Pino, Go slog, .NET, Apache, Nginx | 10 |
+| **datatap-scenario-bruteforce** | Correlated attack chain with consistent attacker IP | 10 |
+| **datatap-scenario-normalday** | Mixed baseline enterprise traffic | 10 |
+
+To change volume, click any source and adjust **Events per second**.
+
+## Stream Your Own Data
+
+DataTap can stream any data you give it — not just the built-in sourcetypes.
+
+### Zero-config (paste and go)
+
+1. Create a sample: **Knowledge > Samples > Add Sample**
+2. Paste a few real events from your app
+3. Create a datagen source: **Data > Sources > Datagen > Add Source**
+4. Set pipeline to `datatap_generate`, pick your sample, set EPS
+5. Enable and save
+
+DataTap automatically randomizes IPs, timestamps, and UUIDs in your events while keeping the structure and business fields intact.
+
+### Template mode (full control)
+
+Create a sample with a DataTap trigger event:
+
+```json
+[{"_raw":"{\"_datatap\":true,\"sourcetype\":\"myapp\",\"template\":\"t|{T} {H} myapp user={U} action={S:login,logout,purchase} status={S:200,400,500} ip={I}\"}","_time":1}]
 ```
 
-## Sourcetypes
+Available tokens: `{I}` IP, `{U}` username, `{T}` timestamp, `{S:a,b,c}` pick one, `{N:1-100}` number range, `{ID}` UUID, `{H}` hostname, `{E}` email, `{HX:16}` hex, `{NM}` full name, `{DOM}` domain.
 
-| Sourcetype | Vendor | Description |
-|---|---|---|
-| `pan:traffic` | Palo Alto Networks | PAN-OS firewall traffic logs (CSV) |
-| `okta:system` | Okta | Okta System Log events (JSON) |
-| `WinEventLog:Security` | Microsoft | Windows Security Event Log (XML) |
-| `syslog` | Generic | RFC 5424 syslog messages |
-| `crowdstrike:falcon:event` | CrowdStrike | Falcon EDR events (JSON) |
+## Requirements
 
-Each sourcetype supports slug-style aliases (e.g., `palo-alto-traffic`, `windows-security`, `crowdstrike-falcon`, `okta-system-log`, `syslog-rfc5424`).
-
-## Scenarios
-
-| Scenario | Description |
-|---|---|
-| `brute-force` | Credential stuffing attack with lateral movement |
-| `normal-day` | Baseline enterprise traffic with business-hour patterns |
-| `data-exfil` | Data exfiltration from reconnaissance through outbound transfer |
-| `insider-threat` | Malicious insider with privilege escalation and anti-forensics |
-
-Scenarios generate correlated events across multiple sourcetypes, using shared actor identities (IPs, usernames, hostnames) that thread through the entire attack narrative.
-
-## Architecture
-
-```
-src/
-  cli.js              CLI entry point (zero-dependency arg parsing)
-  index.js            Public API (DataTap class)
-  definitions/        Sourcetype definition JSON files
-    index.js           Definition loader and registry
-    *.json             One file per sourcetype
-  engine/
-    generator.js       Core event generation engine
-    correlator.js      Cross-event correlation context
-    scheduler.js       Timing and EPS control
-    randomizers/       Field-type randomizers (IP, timestamp, enum, etc.)
-  scenarios/
-    index.js           Scenario registry
-    *.js               One file per scenario
-```
-
-### How It Works
-
-1. **Definitions** describe the schema for each sourcetype: fields, types, weights, templates, and variants
-2. **Randomizers** produce realistic field values: IPs in proper CIDRs, weighted enums, timestamps with jitter
-3. **The generator** combines definitions and randomizers to produce complete events
-4. **The correlator** maintains shared actor state so events across sourcetypes reference the same IPs, users, and hosts
-5. **The scheduler** controls event timing to hit target EPS rates
-6. **Scenarios** orchestrate multi-phase sequences with phase-specific EPS multipliers and sourcetype mixes
-
-## Programmatic API
-
-```js
-const DataTap = require('cribl-datatap');
-
-// Generate a single event
-const tap = new DataTap();
-const event = tap.generate('pan:traffic');
-console.log(event.raw);
-
-// Stream with callbacks
-const tap = new DataTap({
-  eps: 50,
-  onEvent: (event) => console.log(event.raw),
-});
-tap.stream(['syslog', 'okta:system'], { duration: 60 });
-
-// Run a scenario
-const tap = new DataTap({ correlate: true });
-tap.runScenario('brute-force', {
-  eps: 25,
-  timeScale: 10,
-  onEvent: (event) => sendToSIEM(event),
-  onPhaseChange: (phase) => console.log(`Phase: ${phase.name}`),
-});
-
-// Static helpers
-console.log(DataTap.listSourcetypes());
-console.log(DataTap.listScenarios());
-```
-
-## Contributing
-
-Contributions are welcome. To add a new sourcetype:
-
-1. Create a JSON definition in `src/definitions/`
-2. Register the sourcetype mapping in `src/definitions/index.js`
-3. Add test coverage in `tests/`
-
-To add a new scenario:
-
-1. Create a scenario module in `src/scenarios/`
-2. Register it in `src/scenarios/index.js`
-3. Add test coverage in `tests/`
+- Cribl Stream 4.0.0+
+- Docker (for the install script) or filesystem access (for manual install)
+- No other dependencies
 
 ## License
 
-UNLICENSED - Proprietary
+(c) DataDay Technology Solutions

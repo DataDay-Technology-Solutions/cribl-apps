@@ -1,94 +1,60 @@
-# DataTap Pack for Cribl Stream
+# DataTap — On-Demand Streaming Data
 
-On-demand production-realistic streaming data generation for Cribl Stream. Generates high-uniqueness events across 5 sourcetypes with realistic field distributions, weighted variants, and cross-field consistency.
-
-## Supported Sourcetypes
-
-| Sourcetype | Vendor | Format | Description |
-|---|---|---|---|
-| `pan:traffic` | Palo Alto Networks | CSV | PAN-OS firewall traffic logs |
-| `syslog` | Generic | RFC 5424 | Syslog messages (SSH, CRON, systemd, nginx, etc.) |
-| `WinEventLog:Security` | Microsoft | XML | Windows Security events (4624, 4625, 4672, 4688, etc.) |
-| `crowdstrike:falcon:event` | CrowdStrike | JSON | Falcon EDR events (detections, process, network, DNS) |
-| `okta:system` | Okta | JSON | Okta System Log (login, SSO, MFA, lockout, policy) |
-
-## Installation
-
-1. In Cribl Stream, go to **Packs** > **Add New** > **Import from File**
-2. Upload the pack archive or clone this directory into your Cribl packs folder
-3. The pack ID is `cribl-datatap`
+Production-realistic streaming data for 110+ sourcetypes. Install the pack, enable a source, data flows.
 
 ## Quick Start
 
-### Step 1: Create a Datagen Source
+1. Install this pack via **Packs > Add Pack**
+2. Go to **Data > Sources > Datagen**
+3. **datatap-top10** is already enabled and streaming
+4. Enable any other category you need
+5. Data routes to your configured destinations automatically
 
-1. Go to **Sources** > **Datagen**
-2. Create a new Datagen source
-3. Select one of the DataTap sample files:
-   - `datatap_pan_traffic.log` -- Palo Alto firewall traffic
-   - `datatap_syslog.log` -- RFC 5424 syslog
-   - `datatap_windows_security.log` -- Windows Security Event Log
-   - `datatap_crowdstrike.log` -- CrowdStrike Falcon EDR
-   - `datatap_okta.log` -- Okta System Log
-   - `datatap_all_sources.log` -- Mixed stream of all 5 sourcetypes
-4. Set the event generation interval (e.g., 1 event per second)
+## Sources
 
-### Step 2: Attach the Pipeline
+| Source | Sourcetypes | Default EPS | Use Case |
+|--------|-------------|-------------|----------|
+| **datatap-top10** | PAN, syslog, WinEventLog, CrowdStrike, Okta, ASA, CloudTrail, FortiGate, DNS, K8s | 10 | General demo |
+| **datatap-security** | 12 security sources | 10 | SIEM/SOC testing |
+| **datatap-prometheus** | Prometheus only (high-cardinality scrape-like output) | 100 | Cardinality reduction |
+| **datatap-metrics** | Prometheus, StatsD, Graphite, InfluxDB, CloudWatch, OTel | 100 | Mixed metric formats |
+| **datatap-network** | PAN, ASA, FortiGate, Check Point, pfSense, NetFlow, Zeek, Suricata | 10 | Firewall/IDS |
+| **datatap-endpoint** | CrowdStrike, SentinelOne, Carbon Black, Defender, Cortex XDR, Wazuh, Elastic | 10 | EDR pipelines |
+| **datatap-identity** | Okta, Duo, Azure AD, Auth0, CyberArk, BeyondTrust | 10 | IAM/auth |
+| **datatap-cloud-aws** | CloudTrail, GuardDuty, VPC Flow, Lambda, WAF, Config, SecurityHub, Route53 | 10 | AWS security |
+| **datatap-cloud-azure** | AAD Sign-in, Activity, NSG Flow, Firewall, Key Vault, O365 | 10 | Azure security |
+| **datatap-cloud-gcp** | Audit, Firewall, Logging | 10 | GCP |
+| **datatap-o11y** | Prometheus, OTel, Jaeger, Log4j, Pino, K8s, Docker, Sentry, healthcheck | 10 | APM/monitoring |
+| **datatap-devops** | K8s audit/events, Jenkins, GitLab, ArgoCD, Terraform, Docker | 10 | CI/CD |
+| **datatap-applog** | Java Log4j, Python, Node Pino, Go slog, .NET, Apache, Nginx | 10 | App log testing |
+| **datatap-scenario-bruteforce** | PAN, Okta, WinEventLog, CrowdStrike, syslog | 10 | Attack simulation |
+| **datatap-scenario-normalday** | Mixed enterprise traffic | 10 | Baseline activity |
 
-1. Go to **Routes** or the Datagen source settings
-2. Attach the `datatap_generate` pipeline to your Datagen source
-3. This pipeline intercepts the trigger events and replaces them with rich, realistic events
+## Volume Control
 
-### Step 3: Route to a Destination
+Change `eventsPerSec` in any source's settings. Suggested profiles:
+- **Demo**: 10 EPS
+- **Testing**: 100 EPS
+- **Load test**: 1000 EPS
 
-Send the generated events to any Cribl destination: Splunk, Elasticsearch, S3, or anything else.
+## Data Quality
 
-## How It Works
+- **Cross-event correlation**: Same users/IPs across sourcetypes within 5-minute windows
+- **Semantic accuracy**: CloudTrail source-action mapping, Okta event-outcome coherence
+- **Vendor-accurate formats**: PAN CSV (77 fields), WinEventLog XML, proper JSON schemas
+- **High-cardinality metrics**: Unique pod/instance labels per Prometheus event
+- **110+ sourcetypes** in a 58KB engine
 
-The pack uses a two-stage approach:
+## Using with Other Packs
 
-1. **Datagen trigger events** -- Minimal JSON stubs that tell the engine which sourcetype to generate. These use Cribl's `__TIMESTAMP__` token for timing.
+Install DataTap alongside your pack. Enable the matching category source. Route DataTap output through your pipeline. Realistic data flows immediately.
 
-2. **Pipeline Code function** -- A Code function in the `datatap_generate` pipeline intercepts each trigger event, reads its `sourcetype` field, and calls the DataTap engine to generate a fully-formed event. The trigger event's `_raw` is replaced with the generated event.
+## Custom Sourcetypes
 
-The DataTap engine (bundled in `lib/datatap.js`) uses:
-- **Weighted random distributions** for realistic field value selection
-- **Variant systems** for event subtypes (e.g., Windows Event IDs 4624/4625/4672/4688)
-- **Procedural generators** for infinite uniqueness (hostnames, serial numbers, names)
-- **CIDR-aware IP generation** with internal/external weighting
-- **Format-specific renderers** for CSV, XML, RFC 5424 syslog, and JSON
-
-## Sample Files
-
-Located in `default/data/samples/`:
-
-| File | Description |
-|---|---|
-| `datatap_pan_traffic.log` | Single-line trigger for Palo Alto traffic |
-| `datatap_syslog.log` | Single-line trigger for syslog |
-| `datatap_windows_security.log` | Single-line trigger for Windows Security |
-| `datatap_crowdstrike.log` | Single-line trigger for CrowdStrike Falcon |
-| `datatap_okta.log` | Single-line trigger for Okta System Log |
-| `datatap_all_sources.log` | 5-line trigger file for mixed-source streaming |
-
-## Pipeline
-
-### datatap_generate
-
-Located in `default/cribl/pipelines/datatap_generate/conf.yml`
-
-Contains a single Code function that:
-1. Filters for events with `_datatap === true`
-2. Loads the DataTap engine from the pack's `lib/` directory
-3. Generates a production-realistic event based on the `sourcetype` field
-4. Replaces `_raw`, `_time`, `sourcetype`, and `source` on the event
-5. Falls back to error annotation if generation fails
+Need a single specific sourcetype? Create a Datagen source with pipeline `cribl-datatap:datatap_generate` and any sample (e.g., `datatap_pan_traffic`).
 
 ## Requirements
 
-- Cribl Stream 4.0.0 or later
-- No external dependencies (engine is fully self-contained)
-
-## License
+Cribl Stream 4.0.0+. No external dependencies.
 
 (c) DataDay Technology Solutions

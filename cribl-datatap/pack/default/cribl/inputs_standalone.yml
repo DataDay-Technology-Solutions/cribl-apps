@@ -2,150 +2,120 @@ inputs:
   datatap-top10:
     type: datagen
     disabled: false
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_top10
         eventsPerSec: 10
     description: "DataTap — Top 10 Enterprise: pan:traffic, syslog, WinEventLog, crowdstrike, okta, cisco:asa, cloudtrail, fortigate, dns, k8s:audit"
-    tags: datatap
   datatap-security:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_security
         eventsPerSec: 10
     description: "DataTap — Security (12 sources): PAN, WinEventLog, CrowdStrike, Okta, Cisco ASA, CloudTrail, FortiGate, Zscaler, GuardDuty, Darktrace, SentinelOne, Duo"
-    tags: datatap
   datatap-o11y:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_o11y
         eventsPerSec: 10
     description: "DataTap — Observability (10 sources): Prometheus, OTel traces/metrics, Jaeger, Log4j, Pino, K8s logs, Docker stats, Sentry, healthcheck"
-    tags: datatap
   datatap-prometheus:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_prometheus_metrics
         eventsPerSec: 100
     description: "DataTap — Prometheus Only. High-cardinality metrics with unique pod/instance labels per event. Scrape-like output (same metric name per 15s window). Ideal for cardinality reduction testing."
-    tags: datatap
   datatap-metrics:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_metrics
         eventsPerSec: 100
     description: "DataTap — All Metrics (6 formats): Prometheus, StatsD, Graphite, InfluxDB, CloudWatch, OTel. Mixed format cycling."
-    tags: datatap
   datatap-network:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_network
         eventsPerSec: 10
     description: "DataTap — Network (8 sources): PAN traffic, Cisco ASA, FortiGate, Check Point, pfSense, NetFlow, Zeek conn, Suricata"
-    tags: datatap
   datatap-endpoint:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_endpoint
         eventsPerSec: 10
     description: "DataTap — Endpoint/EDR (7 sources): CrowdStrike Falcon, SentinelOne, Carbon Black, MS Defender, Cortex XDR, Wazuh, Elastic Security"
-    tags: datatap
   datatap-identity:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_identity
         eventsPerSec: 10
     description: "DataTap — Identity/Auth (6 sources): Okta, Duo, Azure AD, Auth0, CyberArk, BeyondTrust"
-    tags: datatap
   datatap-cloud-aws:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_cloud_aws
         eventsPerSec: 10
     description: "DataTap — AWS (8 sources): CloudTrail, GuardDuty, VPC Flow, Lambda, WAF, Config, SecurityHub, Route53"
-    tags: datatap
   datatap-cloud-azure:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_cloud_azure
         eventsPerSec: 10
     description: "DataTap — Azure (6 sources): AAD Sign-in, Activity, NSG Flow, Firewall, Key Vault, O365"
-    tags: datatap
   datatap-cloud-gcp:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_cloud_gcp
         eventsPerSec: 10
     description: "DataTap — GCP (3 sources): Audit, Firewall, Logging"
-    tags: datatap
   datatap-devops:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_devops
         eventsPerSec: 10
     description: "DataTap — DevOps/K8s (7 sources): K8s audit/events, Jenkins, GitLab, ArgoCD, Terraform, Docker events"
-    tags: datatap
   datatap-applog:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_applog
         eventsPerSec: 10
     description: "DataTap — App Logs (7 sources): Java Log4j, Python, Node Pino, Go slog, .NET, Apache, Nginx"
-    tags: datatap
   datatap-scenario-bruteforce:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_scenario_bruteforce
         eventsPerSec: 10
     description: "DataTap — SCENARIO: Brute Force Attack. Correlated multi-sourcetype attack chain with consistent attacker IP."
-    tags: datatap
   datatap-scenario-normalday:
     type: datagen
     disabled: true
-    pipeline: cribl-datatap:datatap_generate
-    sendToRoutes: true
+    pipeline: datatap_generate
     samples:
       - sample: datatap_scenario_normalday
         eventsPerSec: 10
     description: "DataTap — SCENARIO: Normal Business Day. Mixed enterprise traffic for baseline testing."
-    tags: datatap

@@ -688,3 +688,57 @@ datatap_all:
   created: 1775000000000
   size: 500
   numEvents: 5
+datatap_metrics:
+  sampleName: datatap_metrics.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_cloud_aws:
+  sampleName: datatap_cloud_aws.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 8
+datatap_cloud_azure:
+  sampleName: datatap_cloud_azure.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_cloud_gcp:
+  sampleName: datatap_cloud_gcp.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 3
+datatap_network:
+  sampleName: datatap_network.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 8
+datatap_identity:
+  sampleName: datatap_identity.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_endpoint:
+  sampleName: datatap_endpoint.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 7
+datatap_devops:
+  sampleName: datatap_devops.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 7
+datatap_applog:
+  sampleName: datatap_applog.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 7
