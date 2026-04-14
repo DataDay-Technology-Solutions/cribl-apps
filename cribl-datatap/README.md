@@ -1,78 +1,40 @@
 # DataTap — Streaming Sample Data for Cribl Stream
 
-Generate production-realistic streaming data for 110+ sourcetypes. One command to install, data flows in seconds.
+110+ sourcetypes. 13 scenarios. One copy-paste install.
 
 ## Install
 
-You need a running Cribl Stream instance (Docker, VM, or bare metal).
-
-### Docker
+Copy and paste this into your terminal. Replace `$CRIBL_HOME` with your Cribl install path (default: `/opt/cribl`).
 
 ```bash
-git clone https://github.com/DataDay-Technology-Solutions/cribl-apps.git
-cd cribl-apps/cribl-datatap
-bash scripts/install.sh
+cd $CRIBL_HOME && \
+git clone --depth 1 https://github.com/DataDay-Technology-Solutions/cribl-apps.git /tmp/datatap-install && \
+cp /tmp/datatap-install/cribl-datatap/pack/default/data/samples/datatap_*.json data/samples/ && \
+mkdir -p local/cribl/pipelines/datatap_generate && \
+cp /tmp/datatap-install/cribl-datatap/pack/default/cribl/pipelines/datatap_generate/conf.yml local/cribl/pipelines/datatap_generate/ && \
+cp /tmp/datatap-install/cribl-datatap/pack/default/cribl/samples.yml local/cribl/samples.yml && \
+cp /tmp/datatap-install/cribl-datatap/pack/default/cribl/inputs_standalone.yml local/cribl/inputs.yml && \
+rm -rf /tmp/datatap-install && \
+echo "DataTap installed. Restart Cribl or commit to git."
 ```
 
-The script auto-detects your Cribl container. If you have multiple containers or a custom name:
+Then either:
+- **Git-managed Cribl:** `git add -A && git commit -m "Add DataTap" && git push` — Cribl syncs automatically
+- **Standalone Cribl:** Restart Cribl: `$CRIBL_HOME/bin/cribl restart`
+- **Docker:** `bash scripts/install.sh` auto-detects your container and handles everything
 
-```bash
-bash scripts/install.sh my-cribl-container 9001
-```
+Open Cribl UI → **Data > Sources > Datagen** → `datatap-top10` is streaming.
 
-That's it. Open your Cribl UI. `datatap-top10` is already streaming.
+## Sources
 
-### Non-Docker (VM / bare metal)
+Enable any source in **Data > Sources > Datagen**. Click it, toggle Enabled, save.
 
-Copy the files manually to your Cribl install directory:
-
-```bash
-# Copy samples
-cp pack/default/data/samples/datatap_*.json /opt/cribl/data/samples/
-
-# Copy config
-cp pack/default/cribl/samples.yml /opt/cribl/local/cribl/samples.yml
-cp pack/default/cribl/inputs_standalone.yml /opt/cribl/local/cribl/inputs.yml
-
-# Copy pipeline
-mkdir -p /opt/cribl/local/cribl/pipelines/datatap_generate
-cp pack/default/cribl/pipelines/datatap_generate/conf.yml /opt/cribl/local/cribl/pipelines/datatap_generate/
-
-# Restart Cribl
-systemctl restart cribl    # or: /opt/cribl/bin/cribl restart
-```
-
-### Distributed (Leader + Workers)
-
-Add the files to your Cribl config git repo:
-
-```bash
-# In your Cribl config repo, under the target worker group:
-cp -r pack/default/data/samples/datatap_*.json groups/<worker-group>/data/samples/
-cp pack/default/cribl/samples.yml groups/<worker-group>/local/cribl/samples.yml
-cp pack/default/cribl/inputs_standalone.yml groups/<worker-group>/local/cribl/inputs.yml
-mkdir -p groups/<worker-group>/local/cribl/pipelines/datatap_generate
-cp pack/default/cribl/pipelines/datatap_generate/conf.yml groups/<worker-group>/local/cribl/pipelines/datatap_generate/
-
-git add -A && git commit -m "Add DataTap" && git push
-```
-
-Leader deploys to workers automatically.
-
-## After Install
-
-Open your Cribl UI and go to **Data > Sources > Datagen**.
-
-You'll see 15 source categories. `datatap-top10` is already enabled and streaming 10 events/sec of mixed enterprise data (PAN firewall, syslog, WinEventLog, CrowdStrike, Okta, Cisco ASA, CloudTrail, FortiGate, DNS, Kubernetes).
-
-Enable any other category you need:
-
-| Source | What it streams | Default EPS |
-|--------|----------------|-------------|
-| **datatap-top10** | 10 core enterprise sourcetypes | 10 |
-| **datatap-prometheus** | High-cardinality Prometheus metrics | 100 |
+| Source | What it streams | EPS |
+|--------|----------------|-----|
+| **datatap-top10** (on by default) | PAN, syslog, WinEventLog, CrowdStrike, Okta, ASA, CloudTrail, FortiGate, DNS, K8s | 10 |
+| **datatap-prometheus** | High-cardinality Prometheus metrics (unique pod/instance per event) | 100 |
 | **datatap-metrics** | Prometheus + StatsD + Graphite + InfluxDB + CloudWatch + OTel | 100 |
-| **datatap-security** | PAN, WinEventLog, CrowdStrike, Okta, ASA, CloudTrail + 6 more | 10 |
+| **datatap-security** | 12 security sources | 10 |
 | **datatap-network** | PAN, ASA, FortiGate, Check Point, pfSense, NetFlow, Zeek, Suricata | 10 |
 | **datatap-endpoint** | CrowdStrike, SentinelOne, Carbon Black, Defender, Cortex XDR, Wazuh, Elastic | 10 |
 | **datatap-identity** | Okta, Duo, Azure AD, Auth0, CyberArk, BeyondTrust | 10 |
@@ -82,40 +44,38 @@ Enable any other category you need:
 | **datatap-o11y** | Prometheus, OTel, Jaeger, Log4j, Pino, K8s, Docker, Sentry | 10 |
 | **datatap-devops** | K8s audit/events, Jenkins, GitLab, ArgoCD, Terraform, Docker | 10 |
 | **datatap-applog** | Java Log4j, Python, Node Pino, Go slog, .NET, Apache, Nginx | 10 |
-| **datatap-scenario-bruteforce** | Correlated attack chain with consistent attacker IP | 10 |
-| **datatap-scenario-normalday** | Mixed baseline enterprise traffic | 10 |
 
-To change volume, click any source and adjust **Events per second**.
+## Scenarios
+
+Attack and ops scenarios with phased timelines and correlated data across sourcetypes. Same attacker IP appears in every event.
+
+| Scenario | Story |
+|----------|-------|
+| **datatap-scenario-bruteforce** | Credential stuffing → account lockout → success → CrowdStrike detection |
+| **datatap-scenario-exfiltration** | S3 bulk reads → DNS tunneling → large transfers → detection |
+| **datatap-scenario-lateral** | Scanning → RDP/PsExec to servers → privilege escalation → DC access |
+| **datatap-scenario-ransomware** | Malware exec → shadow delete → file encryption → CrowdStrike critical alert |
+| **datatap-scenario-insider** | After-hours access → bulk download → cloud upload (mega.nz, wetransfer) |
+| **datatap-scenario-cloud** | Stolen creds → IAM key creation → S3 exfil → CloudTrail disabled |
+| **datatap-scenario-phishing** | Email delivered → cred harvested → mailbox rules → OAuth consent |
+| **datatap-scenario-cryptomining** | Mining pool DNS → EC2 launches → high CPU → pool connections |
+| **datatap-scenario-mfa-fatigue** | Rapid MFA push rejections → user accepts → attacker gains access |
+| **datatap-scenario-supply-chain** | Bad package → unusual child process → C2 beacon → credential access |
+| **datatap-scenario-outage** | Health checks fail → pod restarts → cascade → recovery |
+| **datatap-scenario-deploy-fail** | Jenkins build → K8s update → crash loop → rollback |
+| **datatap-scenario-normalday** | Baseline enterprise traffic |
 
 ## Stream Your Own Data
 
-DataTap can stream any data you give it — not just the built-in sourcetypes.
+Paste a few events from your app. DataTap auto-randomizes IPs, timestamps, and UUIDs while keeping your structure intact.
 
-### Zero-config (paste and go)
-
-1. Create a sample: **Knowledge > Samples > Add Sample**
-2. Paste a few real events from your app
-3. Create a datagen source: **Data > Sources > Datagen > Add Source**
-4. Set pipeline to `datatap_generate`, pick your sample, set EPS
-5. Enable and save
-
-DataTap automatically randomizes IPs, timestamps, and UUIDs in your events while keeping the structure and business fields intact.
-
-### Template mode (full control)
-
-Create a sample with a DataTap trigger event:
-
-```json
-[{"_raw":"{\"_datatap\":true,\"sourcetype\":\"myapp\",\"template\":\"t|{T} {H} myapp user={U} action={S:login,logout,purchase} status={S:200,400,500} ip={I}\"}","_time":1}]
-```
-
-Available tokens: `{I}` IP, `{U}` username, `{T}` timestamp, `{S:a,b,c}` pick one, `{N:1-100}` number range, `{ID}` UUID, `{H}` hostname, `{E}` email, `{HX:16}` hex, `{NM}` full name, `{DOM}` domain.
+1. **Knowledge > Samples > Add Sample** — paste your events
+2. **Data > Sources > Datagen > Add Source** — set pipeline to `datatap_generate`, pick your sample
+3. Enable → data streams with variance
 
 ## Requirements
 
-- Cribl Stream 4.0.0+
-- Docker (for the install script) or filesystem access (for manual install)
-- No other dependencies
+Cribl Stream 4.0.0+. No other dependencies.
 
 ## License
 
