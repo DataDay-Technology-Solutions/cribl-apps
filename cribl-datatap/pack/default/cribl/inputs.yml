@@ -199,3 +199,63 @@ inputs:
         eventsPerSec: 10
     description: "DataTap — SCENARIO: Cloud Compromise. Stolen creds → unusual region login → IAM key creation → S3 exfil → CloudTrail disabled."
     tags: datatap
+  datatap-scenario-phishing:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_phishing
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Phishing → Account Takeover. Email delivered → cred harvested → login → mailbox rules → OAuth app consent → lateral access."
+    tags: datatap
+  datatap-scenario-cryptomining:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_cryptomining
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Cryptomining. Compromised host → DNS to mining pools → high CPU → EC2 instance launches → pool connections."
+    tags: datatap
+  datatap-scenario-mfa-fatigue:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_mfa_fatigue
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: MFA Push Bombing. Rapid MFA push rejections → user accepts → attacker gains access → new device login."
+    tags: datatap
+  datatap-scenario-supply-chain:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_supply_chain
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Supply Chain Attack. Compromised package → unusual child process → C2 beacon → credential access."
+    tags: datatap
+  datatap-scenario-outage:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_outage
+        eventsPerSec: 50
+    description: "DataTap — SCENARIO: Service Outage Cascade. Health checks fail → K8s pod restarts → connection drops → error logs spike → recovery."
+    tags: datatap
+  datatap-scenario-deploy-fail:
+    type: datagen
+    disabled: true
+    pipeline: cribl-datatap:datatap_generate
+    sendToRoutes: true
+    samples:
+      - sample: datatap_scenario_deploy_fail
+        eventsPerSec: 10
+    description: "DataTap — SCENARIO: Deployment Failure. Jenkins build → K8s rolling update → health check fail → pod crash loop → rollback."
+    tags: datatap

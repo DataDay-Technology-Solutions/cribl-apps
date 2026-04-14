@@ -772,3 +772,39 @@ datatap_scenario_cloud:
   created: 1775000000000
   size: 500
   numEvents: 5
+datatap_scenario_phishing:
+  sampleName: datatap_scenario_phishing.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_scenario_cryptomining:
+  sampleName: datatap_scenario_cryptomining.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_mfa_fatigue:
+  sampleName: datatap_scenario_mfa_fatigue.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_supply_chain:
+  sampleName: datatap_scenario_supply_chain.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 5
+datatap_scenario_outage:
+  sampleName: datatap_scenario_outage.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
+datatap_scenario_deploy_fail:
+  sampleName: datatap_scenario_deploy_fail.json
+  isTemplate: true
+  created: 1775000000000
+  size: 500
+  numEvents: 6
